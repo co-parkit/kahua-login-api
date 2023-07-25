@@ -9,7 +9,7 @@ export class SingUpController {
   constructor(private singUpService: SingUpService) {}
 
   @Post()
-  @ApiOperation({ summary: 'create of users' })
+  @ApiOperation({ summary: 'Create of users' })
   async create(@Body() payload: CreateUserDto) {
     return this.singUpService.createUser(payload);
   }

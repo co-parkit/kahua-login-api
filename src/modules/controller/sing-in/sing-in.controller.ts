@@ -1,18 +1,32 @@
-import { Controller, Get, Body, Put, Param } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Put,
+  Post,
+  Param,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { SingInService } from '../../service/sing-in/sing-in.service';
-import { Users } from 'src/modules/database/schema.db';
 import { UsersDto } from '../../dtos/sing-in.dto';
+import { ApiKeyGuard } from '../../../auth/guards/api-key.guard';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
+import { Users } from '../../database/schema.db';
 
+@UseGuards(ApiKeyGuard)
+@UseGuards(AuthGuard('local'))
 @ApiTags('sing-in')
 @Controller('sing-in')
 export class SingInController {
   constructor(private singInService: SingInService) {}
 
-  @Get()
-  @ApiOperation({ summary: 'List of users' })
-  async getUsers(): Promise<Users[]> {
-    return this.singInService.findAll();
+  @Post('login')
+  @ApiOperation({ summary: 'Auth of users' })
+  async login(@Req() payload: Request) {
+    const user = payload.user as Users;
+    return this.singInService.generateJWT(user);
   }
 
   @Put(':userId')

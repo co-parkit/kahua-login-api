@@ -14,7 +14,14 @@ export class SingInService {
   ) {}
 
   generateJWT(user: Users) {
-    const payload: PayloadToken = { email: user.email, sub: user.id };
+    const payload: PayloadToken = {
+      email: user.email,
+      sub: user.id,
+      name: user.name,
+      lastName: user.last_name,
+      role: user.id_role,
+      status: user.id_status,
+    };
     return {
       access_token: this.jwtService.sign(payload),
       user,

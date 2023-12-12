@@ -12,8 +12,8 @@ async function bootstrap() {
     }),
   );
   const config = new DocumentBuilder()
-    .setTitle('API USERS')
-    .setDescription('PARKIT USER')
+    .setTitle('API LOGIN')
+    .setDescription('PARKIT LOGIN')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

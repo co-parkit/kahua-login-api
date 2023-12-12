@@ -9,13 +9,11 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { SingInService } from '../../service/sing-in/sing-in.service';
-import { UsersDto } from '../../dtos/sing-in.dto';
-import { ApiKeyGuard } from '../../../auth/guards/api-key.guard';
+import { UsersDto } from '../../dto/sing-in.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { Users } from '../../database/schema.db';
 
-@UseGuards(ApiKeyGuard)
 @UseGuards(AuthGuard('local'))
 @ApiTags('sing-in')
 @Controller('sing-in')

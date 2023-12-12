@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { ParkitModuleModule } from './modules/parkit-module.module';
 import { ConfigModule } from '@nestjs/config';
 import { enviroments } from './enviroments';
-import { AuthModule } from './auth/auth.module';
 import config from './config';
 
 @Module({
@@ -15,7 +14,6 @@ import config from './config';
       isGlobal: true,
     }),
     ParkitModuleModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

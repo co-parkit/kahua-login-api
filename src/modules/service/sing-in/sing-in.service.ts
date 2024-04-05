@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 
 import { Users } from '../../database/schema.db';
 import { PayloadToken } from '../../models/token.model';
+import { LoginUser } from '../../models/login.model';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -25,11 +26,19 @@ export class SingInService {
       role: user.id_role,
       status: user.id_status,
     };
+    const response: LoginUser = {
+      id: user.id,
+      name: user.name,
+      last_name: user.last_name,
+      email: user.email,
+      id_role: user.id_role,
+      id_status: user.id_status,
+    };
     const secret = this.configService.get<string>('jwtSecret');
     const token = this.jwtService.sign(payload, { secret });
     return {
       access_token: token,
-      user,
+      user: response,
     };
   }
 

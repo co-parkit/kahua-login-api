@@ -1,13 +1,13 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { Users } from '../../database/schema.db';
-import { PayloadToken } from '../../models/token.model';
-import { LoginUser } from '../../models/login.model';
+import { PayloadToken, LoginUser } from '../../models/token.model';
 import { ConfigService } from '@nestjs/config';
-
+import { CODES } from '../../../config/general.codes';
+import { Response } from '../../models/response.model';
 @Injectable()
 export class SingInService {
   constructor(
@@ -18,21 +18,22 @@ export class SingInService {
   ) {}
 
   generateJWT(user: Users) {
+    const { email, id, name, last_name, id_role, id_status } = user;
     const payload: PayloadToken = {
-      email: user.email,
-      sub: user.id,
-      name: user.name,
-      lastName: user.last_name,
-      role: user.id_role,
-      status: user.id_status,
+      email,
+      sub: id,
+      name,
+      lastName: last_name,
+      role: id_role,
+      status: id_status,
     };
     const response: LoginUser = {
-      id: user.id,
-      name: user.name,
-      last_name: user.last_name,
-      email: user.email,
-      id_role: user.id_role,
-      id_status: user.id_status,
+      id,
+      name,
+      last_name,
+      email,
+      id_role,
+      id_status,
     };
     const secret = this.configService.get<string>('jwtSecret');
     const token = this.jwtService.sign(payload, { secret });
@@ -46,12 +47,12 @@ export class SingInService {
     return this.usersModel.findOne({ where: { email } });
   }
 
-  async findUserById(id: number): Promise<Users> {
+  async findUserById(id: number): Promise<Response> {
     const user = await this.usersModel.findByPk<Users>(id);
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      return new Response(CODES.PKL_DATA_NOT_FOUND);
     }
-    return user;
+    return new Response(CODES.PKL_DATA_FOUND, user);
   }
 
   async validateUser(email: string, password: string) {
@@ -65,18 +66,14 @@ export class SingInService {
     return null;
   }
 
-  async updateData(id: number, data: any): Promise<Users> {
+  async updateData(id: number, data: any): Promise<Response> {
     const user = await this.findUserById(id);
     let updateData;
     if (data.password) {
-      const isMatch = await bcrypt.compare(data.password, user.password);
+      const isMatch = await bcrypt.compare(data.password, user.data.password);
       if (isMatch) {
-        throw new HttpException(
-          'The new password must be different from the current password',
-          HttpStatus.BAD_REQUEST,
-        );
+        return new Response(CODES.PKL_BAD_REQUEST);
       }
-
       const salt = await bcrypt.genSalt();
       const hash = await bcrypt.hash(data.password, salt);
       updateData = {

@@ -4,6 +4,7 @@ export default registerAs('config', () => {
   return {
     development: {
       HOST: process.env.HOST,
+      PORT: process.env.PORT,
       PORT_DATABASE: parseInt(process.env.PORT_DATABASE),
       USER_DATABASE: process.env.USER_DATABASE,
       PASSWORD_DATABASE: process.env.PASSWORD_DATABASE,

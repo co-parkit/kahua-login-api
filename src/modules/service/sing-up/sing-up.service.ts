@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Users } from '../../database/schema.db';
 import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
-
+import { CODES } from '../../../config/general.codes';
+import { Response } from '../../models/response.model';
 @Injectable()
 export class SingUpService {
   constructor(
@@ -10,7 +11,7 @@ export class SingUpService {
     private usersModel: typeof Users,
   ) {}
 
-  async createUser(data: any): Promise<Users> {
+  async createUser(data: any): Promise<Response> {
     const salt = await bcrypt.genSalt();
     const password = data.password;
     const hash = await bcrypt.hash(password, salt);
@@ -18,6 +19,11 @@ export class SingUpService {
       ...data,
       password: hash,
     };
-    return this.usersModel.create(newUser);
+    const responseData = {
+      email: data.email,
+      password: hash,
+    };
+    this.usersModel.create(newUser);
+    return new Response(CODES.PKL_USER_CREATE_OK, responseData);
   }
 }

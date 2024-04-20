@@ -32,6 +32,9 @@ export class Users extends Model {
   password: string;
 
   @Column({ allowNull: false })
+  user_name: string;
+
+  @Column({ allowNull: false })
   id_role: number;
 
   @Default(1)

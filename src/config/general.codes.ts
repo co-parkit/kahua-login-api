@@ -7,7 +7,9 @@ type Tcodes =
   | 'PKL_USER_CREATE_OK'
   | 'PKL_BAD_REQUEST'
   | 'PKL_ACCOUNT_DELETED_ERROR'
-  | 'PKL_ACCOUNT_DELETED_OK';
+  | 'PKL_ACCOUNT_DELETED_OK'
+  | 'PKL_USER_EMAIL_EXIST'
+  | 'PKL_USER_NAME_EXIST';
 
 export const CODES: Record<Tcodes, IresponseCode> = {
   PKL_GENERAL_ERROR: {
@@ -44,5 +46,15 @@ export const CODES: Record<Tcodes, IresponseCode> = {
     code: 'PKU_ACCOUNT_DELETED_OK',
     message: 'Successfully deleted account',
     status: 200,
+  },
+  PKL_USER_EMAIL_EXIST: {
+    code: 'PKL_USER_EMAIL_EXIST',
+    message: 'User email, verify the information entered',
+    status: 400,
+  },
+  PKL_USER_NAME_EXIST: {
+    code: 'PKL_USER_NAME_EXIST',
+    message: 'User name, verify the information entered',
+    status: 400,
   },
 };

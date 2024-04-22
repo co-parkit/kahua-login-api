@@ -22,19 +22,13 @@ export class SingUpService {
       email: data.email,
       password: hash,
     };
-    // eslint-disable-next-line prettier/prettier
     const existingEmail = await this.usersModel.findOne({ where: { email: data.email } });
-
-    // eslint-disable-next-line prettier/prettier
     const existingUserName = await this.usersModel.findOne({ where: { user_name: data.user_name } });
     if (existingEmail) {
       return new Response(CODES.PKL_USER_EMAIL_EXIST, null);
     }
     if (existingUserName) {
       return new Response(CODES.PKL_USER_NAME_EXIST, null);
-    }
-    if (existingEmail) {
-      return new Response(CODES.PKL_USER_EMAIL_EXIST, null);
     }
     this.usersModel.create(newUser);
     return new Response(CODES.PKL_USER_CREATE_OK, responseData);

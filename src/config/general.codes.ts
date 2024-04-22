@@ -49,12 +49,12 @@ export const CODES: Record<Tcodes, IresponseCode> = {
   },
   PKL_USER_EMAIL_EXIST: {
     code: 'PKL_USER_EMAIL_EXIST',
-    message: 'User email s, verify the information entered',
+    message: 'User email, verify the information entered',
     status: 400,
   },
   PKL_USER_NAME_EXIST: {
     code: 'PKL_USER_NAME_EXIST',
-    message: 'User name s, verify the information entered',
+    message: 'User name, verify the information entered',
     status: 400,
   },
 };

@@ -8,17 +8,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { SingInService } from '../../service/sing-in/sing-in.service';
+import { SignInService } from '../../service/sing-in/sing-in.service';
 import { UsersDto } from '../../dto/sing-in.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { Users } from '../../database/schema.db';
+import { Users } from '../../database/schema-user.db';
 
 @UseGuards(AuthGuard('local'))
-@ApiTags('sing-in')
-@Controller('sing-in')
-export class SingInController {
-  constructor(private singInService: SingInService) {}
+@ApiTags('sign-in')
+@Controller('sign-in')
+export class SignInController {
+  constructor(private readonly singInService: SignInService) {}
 
   @Post('login')
   @ApiOperation({ summary: 'Auth of users' })

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Users } from './schema.db';
+import { Users } from './schema-user.db';
+import { PreEnrolledParking } from './schema-pre-sing-up-parking.db';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -14,9 +15,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: configService.get('USER_DATABASE'),
         password: configService.get('PASSWORD_DATABASE'),
         database: configService.get('NAME_DATABASE'),
-        models: [Users],
+        models: [Users, PreEnrolledParking],
         autoLoadModels: true,
-        // synchronize: true,
+        synchronize: true,
       }),
       inject: [ConfigService],
     }),

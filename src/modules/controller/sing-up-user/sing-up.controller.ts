@@ -1,12 +1,12 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from '../../dto/sing-up.dto';
-import { SingUpService } from '../../service/sing-up/sing-up.service';
+import { CreateUserDto } from '../../dto/sing-up-user.dto';
+import { SingUpService } from '../../service/sing-up-user/sing-up.service';
 
-@ApiTags('sing-up')
-@Controller('sing-up')
+@ApiTags('sing-up-parking')
+@Controller('sing-up-parking')
 export class SingUpController {
-  constructor(private singUpService: SingUpService) {}
+  constructor(private readonly singUpService: SingUpService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create of users' })

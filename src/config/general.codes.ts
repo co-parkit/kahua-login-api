@@ -7,7 +7,8 @@ type Tcodes =
   | 'PKL_USER_CREATE_OK'
   | 'PKL_BAD_REQUEST'
   | 'PKL_ACCOUNT_DELETED_ERROR'
-  | 'PKL_ACCOUNT_DELETED_OK';
+  | 'PKL_ACCOUNT_DELETED_OK'
+  | 'PKL_PARKING_CREATE_OK';
 
 export const CODES: Record<Tcodes, IresponseCode> = {
   PKL_GENERAL_ERROR: {
@@ -28,6 +29,11 @@ export const CODES: Record<Tcodes, IresponseCode> = {
   PKL_USER_CREATE_OK: {
     code: 'PKU_USER_CREATE_OK',
     message: 'User create successfully',
+    status: 200,
+  },
+  PKL_PARKING_CREATE_OK: {
+    code: 'PKL_PARKING_CREATE_OK',
+    message: 'Parking create successfully',
     status: 200,
   },
   PKL_BAD_REQUEST: {

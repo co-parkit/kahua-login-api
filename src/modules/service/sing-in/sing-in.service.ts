@@ -3,18 +3,18 @@ import { InjectModel } from '@nestjs/sequelize';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
-import { Users } from '../../database/schema.db';
+import { Users } from '../../database/schema-user.db';
 import { PayloadToken, LoginUser } from '../../models/token.model';
 import { ConfigService } from '@nestjs/config';
 import { CODES } from '../../../config/general.codes';
 import { Response } from '../../models/response.model';
 @Injectable()
-export class SingInService {
+export class SignInService {
   constructor(
     @InjectModel(Users)
-    private usersModel: typeof Users,
-    private jwtService: JwtService,
-    private configService: ConfigService,
+    private readonly usersModel: typeof Users,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   generateJWT(user: Users) {

@@ -6,7 +6,7 @@ import { CODES } from '../../../config/general.codes';
 import { Response } from '../../models/response.model';
 
 @Injectable()
-export class SingUpService {
+export class SignUpService {
   constructor(
     @InjectModel(Users)
     private readonly usersModel: typeof Users,

@@ -10,7 +10,8 @@ type Tcodes =
   | 'PKL_ACCOUNT_DELETED_OK'
   | 'PKL_PARKING_CREATE_OK'
   | 'PKL_USER_EMAIL_EXIST'
-  | 'PKL_USER_NAME_EXIST';
+  | 'PKL_USER_NAME_EXIST'
+  | 'PKL_USER_NOT_FOUND';
 
 export const CODES: Record<Tcodes, IresponseCode> = {
   PKL_GENERAL_ERROR: {
@@ -62,5 +63,10 @@ export const CODES: Record<Tcodes, IresponseCode> = {
     code: 'PKL_USER_NAME_EXIST',
     message: 'User name, verify the information entered',
     status: 400,
+  },
+  PKL_USER_NOT_FOUND: {
+    code: 'PKL_USER_NOT_FOUND',
+    message: 'Invalid email or password',
+    status: 401,
   },
 };

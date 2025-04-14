@@ -1,16 +1,16 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from '../../dto/sing-up-user.dto';
-import { SingUpService } from '../../service/sing-up-user/sing-up.service';
+import { SignUpService } from '../../service/sing-up-user/sign-up.service';
 
-@ApiTags('sing-up-parking')
-@Controller('sing-up-parking')
-export class SingUpController {
-  constructor(private readonly singUpService: SingUpService) {}
+@ApiTags('sign-up-parking')
+@Controller('sign-up')
+export class SignUpController {
+  constructor(private readonly signUpService: SignUpService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create of users' })
   async create(@Body() payload: CreateUserDto) {
-    return this.singUpService.createUser(payload);
+    return this.signUpService.createUser(payload);
   }
 }

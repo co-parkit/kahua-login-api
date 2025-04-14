@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { SignInController } from './controller/sing-in/sing-in.controller';
-import { SingUpController } from './controller/sing-up-user/sing-up.controller';
-import { PreSingUpController } from './controller/pre-sing-up-parking/pre-sing-up.controller';
-import { PreSignUpService } from './service/pre-sing-up-parking/pre-sing-up-parking.service';
-import { SignInService } from './service/sing-in/sing-in.service';
-import { SingUpService } from './service/sing-up-user/sing-up.service';
+import { SignInController } from './controller/sing-in/sign-in.controller';
+import { SignUpController } from './controller/sing-up-user/sign-up.controller';
+import { PreSignUpController } from './controller/pre-sing-up-parking/pre-sign-up.controller';
+import { PreSignUpService } from './service/pre-sign-up-parking/pre-sign-up-parking.service';
+import { SignInService } from './service/sing-in/sign-in.service';
+import { SignUpService } from './service/sing-up-user/sign-up.service';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Users } from './database/schema-user.db';
 import { DatabaseModule } from './database/database.module';
@@ -27,20 +27,20 @@ import { PreEnrolledParking } from './database/schema-pre-sing-up-parking.db';
         return {
           secret: configService.jwtSecret,
           signOptions: {
-            expiresIn: '10m',
+            expiresIn: '4h',
           },
         };
       },
     }),
   ],
-  controllers: [SignInController, SingUpController, PreSingUpController],
+  controllers: [SignInController, SignUpController, PreSignUpController],
   providers: [
     SignInService,
-    SingUpService,
+    SignUpService,
     LocalStrategy,
     JwtStrategy,
     PreSignUpService,
   ],
-  exports: [SingUpService, SignInService, PreSignUpService],
+  exports: [SignUpService, SignInService, PreSignUpService],
 })
 export class ParkitModuleModule {}

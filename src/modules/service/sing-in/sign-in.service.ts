@@ -55,17 +55,23 @@ export class SignInService {
     return new Response(CODES.PKL_DATA_FOUND, user);
   }
 
-  async validateUser(email: string, password: string) {
-    const user = await this.findByEmail(email);
-    if (user) {
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (isMatch) {
-        return user;
+  async validateUser(email: string, password: string): Promise<Users | null> {
+    try {
+      const user = await this.findByEmail(email);
+      if (!user) {
+        return null;
       }
+      const isMatch = await bcrypt.compare(password, user.dataValues.password);
+      if (!isMatch) {
+        return null;
+      }
+      return user;
+    } catch (error) {
+      return error;
     }
-    return null;
   }
 
+  //aqui debe ser recuperar la cuenta, no actualizar la info, eso lo hace el api de user
   async updateData(id: number, data: any): Promise<Response> {
     const user = await this.findUserById(id);
     let updateData;

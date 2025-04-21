@@ -1,25 +1,17 @@
-import {
-  Controller,
-  Body,
-  Put,
-  Post,
-  Param,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Body, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { UsersDto } from '../../dto/sing-in.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { Users } from '../../database/schema-user.db';
 import { SignInService } from '../../service/sing-in/sign-in.service';
+import { ForgotPasswordDto } from '../../../modules/dto/forgot-password-dto';
 
-@UseGuards(AuthGuard('local'))
 @ApiTags('sign-in')
 @Controller('sign-in')
 export class SignInController {
   constructor(private readonly signInService: SignInService) {}
 
+  @UseGuards(AuthGuard('local'))
   @Post('login')
   @ApiOperation({ summary: 'Auth of users' })
   async login(@Req() payload: Request) {
@@ -27,9 +19,9 @@ export class SignInController {
     return this.signInService.generateJWT(user);
   }
 
-  @Put(':userId')
-  @ApiOperation({ summary: 'Update of users' })
-  async updateUsers(@Param('userId') id: number, @Body() payload: UsersDto) {
-    return this.signInService.updateData(id, payload);
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Recuperar contraseña por correo' })
+  async forgotPassword(@Body() payload: ForgotPasswordDto) {
+    return this.signInService.forgotPassword(payload.email);
   }
 }

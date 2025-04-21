@@ -15,12 +15,13 @@ import { JwtModule } from '@nestjs/jwt';
 import config from './../config';
 import { ConfigType } from '@nestjs/config';
 import { PreEnrolledParking } from './database/schema-pre-sing-up-parking.db';
-
+import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [
     SequelizeModule.forFeature([Users, PreEnrolledParking]),
     DatabaseModule,
     PassportModule,
+    HttpModule,
     JwtModule.registerAsync({
       inject: [config.KEY],
       useFactory: (configService: ConfigType<typeof config>) => {

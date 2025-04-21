@@ -6,11 +6,11 @@ import { PreSignUpParkingDto } from '../../dto/pre-sing-up-parking.dto';
 @ApiTags('pre-sign-up')
 @Controller('pre-sign-up')
 export class PreSignUpController {
-  constructor(private readonly singUpService: PreSignUpService) {}
+  constructor(private readonly presignUpService: PreSignUpService) {}
 
   @Post('pre-enrollment')
   @ApiOperation({ summary: 'Pre create of parking' })
   async create(@Body() payload: PreSignUpParkingDto) {
-    return this.singUpService.preCreateParking(payload);
+    return this.presignUpService.preCreateParking(payload);
   }
 }

@@ -11,7 +11,10 @@ type Tcodes =
   | 'PKL_PARKING_CREATE_OK'
   | 'PKL_USER_EMAIL_EXIST'
   | 'PKL_USER_NAME_EXIST'
-  | 'PKL_USER_NOT_FOUND';
+  | 'PKL_USER_NOT_FOUND'
+  | 'PKL_ROLE_NOT_ALLOWED'
+  | 'KHL_NOTIFICATION_FAILED'
+  | 'KHL_EMAIL_SENT';
 
 export const CODES: Record<Tcodes, IresponseCode> = {
   PKL_GENERAL_ERROR: {
@@ -68,5 +71,20 @@ export const CODES: Record<Tcodes, IresponseCode> = {
     code: 'PKL_USER_NOT_FOUND',
     message: 'Invalid email or password',
     status: 401,
+  },
+  PKL_ROLE_NOT_ALLOWED: {
+    code: 'PKL_ROLE_NOT_ALLOWED',
+    message: 'Contact your administrator to change your password.',
+    status: 403,
+  },
+  KHL_NOTIFICATION_FAILED: {
+    code: 'KHL_NOTIFICATION_FAILED',
+    message: 'The notification could not be sent',
+    status: 502,
+  },
+  KHL_EMAIL_SENT: {
+    code: 'KHL_EMAIL_SENT',
+    message: 'The mail was sent',
+    status: 200,
   },
 };

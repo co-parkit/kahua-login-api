@@ -12,5 +12,8 @@ export default registerAs('config', () => {
     },
     apiKey: process.env.KEY,
     jwtSecret: process.env.JWT_SECRET,
+    getApi: {
+      kahuaNotification: process.env.KAHUA_NOTIFICATION_API,
+    },
   };
 });

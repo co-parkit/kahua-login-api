@@ -1,9 +1,10 @@
 export const mockEnrolledParkingModel = {
   create: jest.fn().mockImplementation((data) => ({
     ...data,
-    legal_representative: data.legal_representative || 'MockRep',
-    company_name: data.company_name || 'MockCompany',
-    external_id: data.external_id || 'mock-external-id',
-    internal_id: data.internal_id || null,
+    legalRepresentative: data.legalRepresentative || 'MockRep',
+    companyName: data.companyName || 'MockCompany',
+    externalId: data.externalId || 'mock-external-id',
+    internalId: data.internalId || null,
   })),
+  save: jest.fn().mockImplementation((entity) => Promise.resolve(entity)),
 };

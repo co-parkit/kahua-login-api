@@ -14,12 +14,12 @@ export class PreSignUpParkingDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: `parking legal representative` })
-  readonly legal_representative: string;
+  readonly legalRepresentative: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: `parking nit + DV` })
-  readonly nit_DV: string;
+  readonly nitDV: string;
 
   @IsString()
   @IsNotEmpty()
@@ -53,37 +53,37 @@ export class PreSignUpParkingDto {
   @IsBoolean()
   @IsNotEmpty()
   @ApiProperty({ description: `parking has_branches` })
-  readonly has_branches: boolean;
+  readonly hasBranches: boolean;
 
   @IsNumber()
   @IsNotEmpty()
   @ApiProperty({ description: `parking number_of_branches` })
-  readonly number_of_branches: number;
+  readonly numberOfBranches: number;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: `parking company_name` })
-  readonly company_name: string;
+  readonly companyName: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: `parking document_type` })
-  readonly document_type: string;
+  readonly documentType: string;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: `parking document_number` })
-  readonly document_number: string;
+  readonly documentNumber: string;
 
   @IsOptional()
   @Matches(/^\d{6}$/, {
     message: 'Internal ID must contain exactly 6 digits.',
   })
-  readonly internal_id?: string;
+  readonly internalId?: string;
 
   @IsOptional()
   @IsUUID('4')
-  readonly external_id?: string;
+  readonly externalId?: string;
 }
 
 export class UpdatPreSignUpParkingDto extends PartialType(

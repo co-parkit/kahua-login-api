@@ -8,7 +8,7 @@ export class UsersDto {
 
   @IsString()
   @ApiProperty({ description: `user's last_name` })
-  readonly last_name: string;
+  readonly lastName: string;
 
   @IsString()
   @Matches(/^\d{1,10}$/, {

@@ -1,12 +1,12 @@
-import { Users } from '../../src/modules/database/schema-user.db';
+import { User } from '../../src/modules/database/schema-user.db';
 
-export const mockUser: Partial<Users> = {
+export const mockUser: Partial<User> = {
   id: 1,
   name: 'Juan',
-  last_name: 'Pérez',
+  lastName: 'Pérez',
   email: 'juan@gmail.com',
-  id_role: 1,
-  id_status: 1,
+  idRole: 1,
+  idStatus: 1,
 };
 
 export const mockSignInService = {

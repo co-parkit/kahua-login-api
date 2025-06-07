@@ -2,7 +2,7 @@ import { Controller, Body, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { Users } from '../../database/schema-user.db';
+import { User } from '../../database/schema-user.db';
 import { SignInService } from '../../service/sing-in/sign-in.service';
 import { ForgotPasswordDto } from '../../../modules/dto/forgot-password-dto';
 
@@ -15,7 +15,7 @@ export class SignInController {
   @Post('login')
   @ApiOperation({ summary: 'Auth of users' })
   async login(@Req() payload: Request) {
-    const user = payload.user as Users;
+    const user = payload.user as User;
     return this.signInService.generateJWT(user);
   }
 

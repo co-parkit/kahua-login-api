@@ -1,43 +1,31 @@
-import {
-  AutoIncrement,
-  Column,
-  Default,
-  Model,
-  PrimaryKey,
-  Table,
-} from 'sequelize-typescript';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Table({
-  tableName: 'users',
-})
-export class Users extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column({ allowNull: false })
+@Entity({ name: 'users' })
+export class User {
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ allowNull: false })
+  @Column({ nullable: false })
   name: string;
 
-  @Column({ allowNull: false })
-  last_name: string;
+  @Column({ nullable: false })
+  lastName: string;
 
-  @Column({ allowNull: false })
-  phone: string;
+  @Column({ nullable: true })
+  phone: string | null;
 
-  @Column({ allowNull: false })
+  @Column({ nullable: false })
   email: string;
 
-  @Column({ allowNull: false })
+  @Column({ nullable: false })
   password: string;
 
-  @Column({ allowNull: false })
-  user_name: string;
+  @Column({ nullable: false })
+  userName: string;
 
-  @Column({ allowNull: false })
-  id_role: number;
+  @Column({ type: 'int', nullable: false })
+  idRole: number;
 
-  @Default(1)
-  @Column({ allowNull: false })
-  id_status: number;
+  @Column({ type: 'int', default: 1, nullable: false })
+  idStatus: number;
 }

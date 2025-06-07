@@ -1,76 +1,63 @@
-import { DataTypes } from 'sequelize';
-import {
-  AutoIncrement,
-  Column,
-  Default,
-  Model,
-  PrimaryKey,
-  Table,
-} from 'sequelize-typescript';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Table({
-  tableName: 'pre-register',
-})
-export class PreEnrolledParking extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column({ allowNull: false })
+@Entity({ name: 'pre-register' })
+export class PreEnrolledParking {
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ allowNull: false })
-  legal_representative: string;
+  @Column({ nullable: false })
+  legalRepresentative: string;
 
-  @Column({ allowNull: false })
-  nit_DV: string;
+  @Column({ nullable: false })
+  nitDV: string;
 
-  @Column({ allowNull: false })
+  @Column({ nullable: false })
   phone: string;
 
-  @Column({ allowNull: false })
+  @Column({ nullable: false })
   email: string;
 
-  @Column({ allowNull: false })
+  @Column({ nullable: false })
   address: string;
 
-  @Column({ allowNull: false })
+  @Column({ type: 'int', nullable: false })
   city: number;
 
-  @Column({ allowNull: false })
+  @Column({ nullable: false })
   neighborhood: string;
 
-  @Column({ allowNull: false })
-  has_branches: boolean;
+  @Column({ type: 'boolean', nullable: false })
+  hasBranches: boolean;
 
-  @Column({ allowNull: false })
-  number_of_branches: number;
+  @Column({ type: 'int', nullable: false })
+  numberOfBranches: number;
 
-  @Column({ allowNull: false })
-  company_name: string;
+  @Column({ nullable: false })
+  companyName: string;
 
-  @Column({ allowNull: false })
-  document_type: string;
+  @Column({ nullable: false })
+  documentType: string;
 
-  @Column({ allowNull: false })
-  document_number: string;
+  @Column({ nullable: false })
+  documentNumber: string;
 
-  @Column({ allowNull: true })
-  id_files: number;
+  @Column({ type: 'int', nullable: true })
+  idFiles: number | null;
 
-  @Default(1)
-  @Column({ allowNull: false })
-  is_status: number;
+  @Column({ type: 'int', default: 1, nullable: false })
+  isStatus: number;
 
   @Column({
-    type: DataTypes.STRING(6),
-    allowNull: true,
-    validate: {
-      isNumeric: true,
-      len: [6, 6],
-    },
+    type: 'varchar',
+    length: 6,
+    nullable: true,
   })
-  internal_id: string;
+  internalId: string;
 
-  @Default(DataTypes.UUIDV4)
-  @Column({ allowNull: true })
-  external_id: string;
+  @Column({
+    type: 'uuid',
+    nullable: true,
+    default: () => 'uuid_generate_v4()',
+  })
+  externalId: string;
 }

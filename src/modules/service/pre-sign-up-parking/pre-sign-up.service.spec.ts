@@ -1,10 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PreSignUpService } from './pre-sign-up-parking.service';
-import { getModelToken } from '@nestjs/sequelize';
+
 import { PreEnrolledParking } from '../../database/schema-pre-sing-up-parking.db';
 import { mockEnrolledParkingModel } from '../../../../test/mocks/pre-enrolled-parking.mock';
 import { PreSignUpParkingDto } from '../../dto/pre-sing-up-parking.dto';
 import { CODES } from '../../../config/general.codes';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('PreSignUpService', () => {
   let service: PreSignUpService;
@@ -14,7 +15,7 @@ describe('PreSignUpService', () => {
       providers: [
         PreSignUpService,
         {
-          provide: getModelToken(PreEnrolledParking),
+          provide: getRepositoryToken(PreEnrolledParking),
           useValue: mockEnrolledParkingModel,
         },
       ],
@@ -30,19 +31,19 @@ describe('PreSignUpService', () => {
   describe('preCreateParking', () => {
     it('should create a new parking and return formatted response', async () => {
       const dto: PreSignUpParkingDto = {
-        legal_representative: 'Test Legal',
-        nit_DV: '123456789-1',
+        legalRepresentative: 'Test Legal',
+        nitDV: '123456789-1',
         phone: '3001234567',
         email: 'test@parking.com',
         address: '123 Calle Falsa',
         city: 1,
         neighborhood: 'Centro',
-        has_branches: false,
-        number_of_branches: 0,
-        company_name: 'MockParking S.A.S.',
-        document_type: 'CC',
-        document_number: '987654321',
-        internal_id: '123456',
+        hasBranches: false,
+        numberOfBranches: 0,
+        companyName: 'MockParking S.A.S.',
+        documentType: 'CC',
+        documentNumber: '987654321',
+        internalId: '123456',
       };
 
       const response = await service.preCreateParking(dto);
@@ -57,8 +58,8 @@ describe('PreSignUpService', () => {
 
       expect(mockEnrolledParkingModel.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          legal_representative: 'Test Legal',
-          company_name: 'MockParking S.A.S.',
+          legalRepresentative: 'Test Legal',
+          companyName: 'MockParking S.A.S.',
         }),
       );
     });

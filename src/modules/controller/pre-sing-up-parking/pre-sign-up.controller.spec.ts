@@ -33,19 +33,19 @@ describe('PreSignUpController', () => {
   describe('create()', () => {
     it('should call service with DTO and return response', async () => {
       const dto: PreSignUpParkingDto = {
-        legal_representative: 'Test Legal',
-        nit_DV: '123456789-1',
+        legalRepresentative: 'Test Legal',
+        nitDV: '123456789-1',
         phone: '3001234567',
         email: 'test@parking.com',
         address: 'Calle 123',
         city: 1,
         neighborhood: 'Centro',
-        has_branches: false,
-        number_of_branches: 0,
-        company_name: 'MockParking S.A.S.',
-        document_type: 'CC',
-        document_number: '123456789',
-        internal_id: '123456',
+        hasBranches: false,
+        numberOfBranches: 0,
+        companyName: 'MockParking S.A.S.',
+        documentType: 'CC',
+        documentNumber: '123456789',
+        internalId: '123456',
       };
 
       const mockResponse = { code: 'PKL_PARKING_CREATE_OK', data: dto };

@@ -12,7 +12,7 @@ export interface PayloadToken extends UserBase {
 }
 
 export interface LoginUser extends UserBase {
-  last_name: string;
-  id_role: number;
-  id_status: number;
+  lastName: string;
+  idRole: number;
+  idStatus: number;
 }

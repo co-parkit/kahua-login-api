@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SignUpService } from './sign-up.service';
-import { getModelToken } from '@nestjs/sequelize';
-import { Users } from '../../database/schema-user.db';
+import { User } from '../../database/schema-user.db';
 import { mockUserModel } from '../../../../test/mocks/user.model.mock';
+import { mockLogger, mockData } from '../../../../test/mocks/sign-up-mock';
 import { CODES } from '../../../config/general.codes';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { MyLogger } from '../../../config/logger';
 
 describe('SignUpService', () => {
   let service: SignUpService;
@@ -15,8 +17,12 @@ describe('SignUpService', () => {
       providers: [
         SignUpService,
         {
-          provide: getModelToken(Users),
+          provide: getRepositoryToken(User),
           useValue: mockUserModel,
+        },
+        {
+          provide: MyLogger,
+          useValue: mockLogger,
         },
       ],
     }).compile();
@@ -29,48 +35,58 @@ describe('SignUpService', () => {
   });
 
   describe('createUser', () => {
-    const mockData = {
-      email: 'test@example.com',
-      password: 'plainpass',
-      user_name: 'testuser',
-    };
-
     it('should return PKL_USER_EMAIL_EXIST if email already exists', async () => {
-      mockUserModel.findOne = jest.fn().mockResolvedValueOnce(true);
+      mockUserModel.findOne = jest.fn().mockResolvedValueOnce({
+        email: mockData.email,
+        userName: 'another_user',
+      });
 
       const response = await service.createUser(mockData);
 
       expect(response.code).toBe(CODES.PKL_USER_EMAIL_EXIST.code);
       expect(mockUserModel.findOne).toHaveBeenCalledWith({
-        where: { email: mockData.email },
+        where: [{ email: mockData.email }, { userName: mockData.user_name }],
       });
     });
 
-    it('should return PKL_USER_NAME_EXIST if username already exists', async () => {
-      mockUserModel.findOne = jest
-        .fn()
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(true);
+    it('should return PKL_USER_NAME_EXIST if user_name already exists', async () => {
+      mockUserModel.findOne = jest.fn().mockResolvedValueOnce({
+        email: 'another_email@example.com',
+        userName: mockData.user_name,
+      });
 
       const response = await service.createUser(mockData);
 
       expect(response.code).toBe(CODES.PKL_USER_NAME_EXIST.code);
       expect(mockUserModel.findOne).toHaveBeenCalledWith({
-        where: { user_name: mockData.user_name },
+        where: [{ email: mockData.email }, { userName: mockData.user_name }],
       });
     });
 
     it('should create user and return PKL_USER_CREATE_OK', async () => {
       mockUserModel.findOne = jest.fn().mockResolvedValue(null);
-      mockUserModel.create = jest.fn().mockResolvedValue(true);
+      mockUserModel.create = jest.fn().mockImplementation((data) => ({
+        ...data,
+        id: 1,
+      }));
+      mockUserModel.save = jest.fn().mockResolvedValue({
+        id: 1,
+        email: mockData.email,
+        userName: mockData.user_name,
+        password: 'hashedPassword',
+      });
 
       const response = await service.createUser(mockData);
 
       expect(response.code).toBe(CODES.PKL_USER_CREATE_OK.code);
-      expect(response.data?.email).toBe(mockData.email);
-      expect(typeof response.data?.password).toBe('string');
-      expect(response.data.password).not.toBe(mockData.password);
+      expect(response.data.userId).toEqual({
+        id: 1,
+        email: mockData.email,
+        userName: mockData.user_name,
+        password: 'hashedPassword',
+      });
       expect(mockUserModel.create).toHaveBeenCalled();
+      expect(mockUserModel.save).toHaveBeenCalled();
     });
   });
 });

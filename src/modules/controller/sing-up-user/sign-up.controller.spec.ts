@@ -36,10 +36,10 @@ describe('SignUpController', () => {
         email: 'mock@user.com',
         password: '123456',
         name: 'Mock',
-        last_name: 'User',
+        lastName: 'User',
         phone: '3000000000',
-        user_name: 'mockuser',
-        id_role: 1,
+        userName: 'mockuser',
+        idRole: 1,
       };
 
       const mockResponse = {

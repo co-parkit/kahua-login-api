@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
+import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
-import { Users } from '../../database/schema-user.db';
+import { User } from '../../database/schema-user.db';
 import { PayloadToken, LoginUser } from '../../models/token.model';
 import { CODES } from '../../../config/general.codes';
 import { Response } from '../../models/response.model';
@@ -17,33 +18,34 @@ import {
   JwtSecretValue,
   UserPlatform,
 } from '../../../config/constants';
+
 @Injectable()
 export class SignInService {
   constructor(
-    @InjectModel(Users)
-    private readonly usersModel: typeof Users,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {}
 
-  generateJWT(user: Users) {
-    const { email, id, name, last_name, id_role, id_status } = user;
+  generateJWT(user: User) {
+    const { email, id, name, lastName, idRole, idStatus } = user;
     const payload: PayloadToken = {
       email,
       sub: id,
       name,
-      lastName: last_name,
-      role: id_role,
-      status: id_status,
+      lastName,
+      role: idRole,
+      status: idStatus,
     };
     const response: LoginUser = {
       id,
       name,
-      last_name,
+      lastName: lastName,
       email,
-      id_role,
-      id_status,
+      idRole: idRole,
+      idStatus: idStatus,
     };
     const secret = this.configService.get<string>(JwtSecretValue);
     const token = this.jwtService.sign(payload, { secret });
@@ -54,24 +56,29 @@ export class SignInService {
   }
 
   findByEmail(email: string) {
-    return this.usersModel.findOne({ where: { email } });
+    return this.userRepository.findOne({
+      where: { email },
+    });
   }
 
   async findUserById(id: number): Promise<Response> {
-    const user = await this.usersModel.findByPk<Users>(id);
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
     if (!user) {
       return new Response(CODES.PKL_DATA_NOT_FOUND);
     }
     return new Response(CODES.PKL_DATA_FOUND, user);
   }
 
-  async validateUser(email: string, password: string): Promise<Users | null> {
+  async validateUser(email: string, password: string): Promise<User | null> {
     try {
       const user = await this.findByEmail(email);
       if (!user) {
         return null;
       }
-      const isMatch = await bcrypt.compare(password, user.dataValues.password);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return null;
       }
@@ -91,12 +98,13 @@ export class SignInService {
 
   private async validateUserForPasswordReset(
     email: string,
-  ): Promise<Users | Response> {
+  ): Promise<User | Response> {
     const user = await this.findByEmail(email);
 
     if (!user) return new Response(CODES.PKL_USER_NOT_FOUND);
-    if (user.id_role !== UserPlatform)
+    if (user.idRole !== UserPlatform)
       return new Response(CODES.PKL_ROLE_NOT_ALLOWED);
+
     return user;
   }
 
@@ -114,7 +122,7 @@ export class SignInService {
   }
 
   async sendPasswordResetEmail(
-    user: Users,
+    user: User,
     resetUrl: string,
   ): Promise<Response> {
     try {
@@ -133,6 +141,7 @@ export class SignInService {
           },
         }),
       );
+
       if (response.status === 201) {
         return new Response(CODES.KHL_EMAIL_SENT);
       }

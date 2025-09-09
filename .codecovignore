@@ -1,0 +1,36 @@
+# Ignore files from coverage reporting
+# https://docs.codecov.com/docs/ignoring-paths
+
+# Test files
+**/*.spec.ts
+**/*.test.ts
+**/*.e2e-spec.ts
+
+# Interface and type definition files
+**/*.interface.ts
+**/*.dto.ts
+**/*.entity.ts
+
+# Entry points
+src/main.ts
+src/index.ts
+
+# Configuration files
+**/*.config.ts
+**/*.config.js
+
+# Build and distribution files
+dist/
+build/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Documentation
+docs/
+*.md
+README.md
+
+# Environment files
+.env*

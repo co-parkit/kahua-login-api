@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ErrorHandlerInterceptor } from './infrastructure/interceptors/error-handler.interceptor';
+import { JwtErrorInterceptor } from './infrastructure/interceptors/jwt-error.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +20,11 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
     }),
+  );
+
+  app.useGlobalInterceptors(
+    new ErrorHandlerInterceptor(),
+    new JwtErrorInterceptor(),
   );
   const config = new DocumentBuilder()
     .setTitle('API LOGIN')

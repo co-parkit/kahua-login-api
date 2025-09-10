@@ -1,32 +1,14 @@
-# Codecov configuration file
-# https://docs.codecov.com/docs/codecov-yaml
-
 coverage:
   status:
     project:
       default:
         target: 80%
         threshold: 5%
-        base: auto
     patch:
       default:
         target: 80%
         threshold: 5%
-        base: auto
 
-# Ignore certain files from coverage
-ignore:
-  - "src/**/*.spec.ts"
-  - "src/**/*.interface.ts"
-  - "src/**/*.dto.ts"
-  - "src/**/*.entity.ts"
-  - "src/main.ts"
-  - "src/index.ts"
-  - "test/**"
-  - "dist/**"
-  - "node_modules/**"
-
-# Comment configuration
 comment:
   layout: "header,diff,files,footer"
   behavior: default
@@ -34,34 +16,19 @@ comment:
   require_base: no
   require_head: yes
 
-# Notifications
-notify:
-  wait_for_ci: true
-
-# GitHub specific settings
 github_checks:
   annotations: true
 
-# File upload settings
-codecov:
-  require_ci_to_pass: yes
-  fail_ci_if_error: true
-  token: # Will be set via environment variable
-
-# Coverage processing
-fixes:
-  - "src/::src/"
-  - "::src/"
-
-# Flags for different types of coverage
-flags:
-  unit:
-    paths:
-      - "src/application/"
-      - "src/domain/"
-      - "src/infrastructure/"
-    carryforward: true
-  integration:
-    paths:
-      - "test/"
-    carryforward: false
+ignore:
+  - "src/**/*.spec.ts"
+  - "src/**/*.interface.ts"
+  - "src/**/*.dto.ts"
+  - "src/**/*.entity.ts"
+  - "src/main.ts"
+  - "src/index.ts"
+  - "src/**/*.config.ts"
+  - "src/**/*.config.js"
+  - "test/**/*"
+  - "coverage/**/*"
+  - "dist/**/*"
+  - "node_modules/**/*"

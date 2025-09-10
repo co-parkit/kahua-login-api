@@ -1,4 +1,4 @@
-import { IresponseCode } from './response-code.interface';
+import { IResponseCode } from '../domain/interfaces/response.interface';
 
 type Tcodes =
   | 'PKL_GENERAL_ERROR'
@@ -14,9 +14,15 @@ type Tcodes =
   | 'PKL_USER_NOT_FOUND'
   | 'PKL_ROLE_NOT_ALLOWED'
   | 'KHL_NOTIFICATION_FAILED'
-  | 'KHL_EMAIL_SENT';
+  | 'KHL_EMAIL_SENT'
+  | 'PKL_JWT_EXPIRED'
+  | 'PKL_JWT_INVALID'
+  | 'PKL_RATE_LIMIT_LOGIN'
+  | 'PKL_RATE_LIMIT_FORGOT_PASSWORD'
+  | 'PKL_RATE_LIMIT_GENERAL'
+  | 'PKL_BUSINESS_RULE_VIOLATION';
 
-export const CODES: Record<Tcodes, IresponseCode> = {
+export const CODES: Record<Tcodes, IResponseCode> = {
   PKL_GENERAL_ERROR: {
     code: 'PKU_GENERAL_ERROR',
     message: 'General error, please try in a moment',
@@ -86,5 +92,35 @@ export const CODES: Record<Tcodes, IresponseCode> = {
     code: 'KHL_EMAIL_SENT',
     message: 'The mail was sent',
     status: 200,
+  },
+  PKL_JWT_EXPIRED: {
+    code: 'PKL_JWT_EXPIRED',
+    message: 'Token has expired. Please login again.',
+    status: 401,
+  },
+  PKL_JWT_INVALID: {
+    code: 'PKL_JWT_INVALID',
+    message: 'Invalid token. Please login again.',
+    status: 401,
+  },
+  PKL_RATE_LIMIT_LOGIN: {
+    code: 'PKL_RATE_LIMIT_LOGIN',
+    message: 'Too many login attempts. Please try again later.',
+    status: 429,
+  },
+  PKL_RATE_LIMIT_FORGOT_PASSWORD: {
+    code: 'PKL_RATE_LIMIT_FORGOT_PASSWORD',
+    message: 'Too many password reset requests. Please try again later.',
+    status: 429,
+  },
+  PKL_RATE_LIMIT_GENERAL: {
+    code: 'PKL_RATE_LIMIT_GENERAL',
+    message: 'Too many requests. Please try again later.',
+    status: 429,
+  },
+  PKL_BUSINESS_RULE_VIOLATION: {
+    code: 'PKL_BUSINESS_RULE_VIOLATION',
+    message: 'Business rule violation',
+    status: 400,
   },
 };

@@ -1,0 +1,90 @@
+name: Coverage
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Required for codecov to work properly
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linter
+      run: npm run lint
+    
+    - name: Run tests with coverage
+      run: npm run test:cov
+      env:
+        CI: true
+        NODE_ENV: test
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage/lcov.info
+        flags: unit
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        verbose: true
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./
+        root_dir: ./
+        files: ./coverage/lcov.info
+        yml: ./codecov.yml
+    
+    - name: Comment PR with coverage
+      if: github.event_name == 'pull_request'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage/lcov.info
+        flags: unit
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: ./
+        root_dir: ./
+        files: ./coverage/lcov.info
+        yml: ./codecov.yml
+
+  coverage-check:
+    runs-on: ubuntu-latest
+    needs: coverage
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run coverage check
+      run: npm run test:cov
+      env:
+        CI: true
+        NODE_ENV: test

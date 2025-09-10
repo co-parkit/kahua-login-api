@@ -90,8 +90,11 @@ export const createTestError = (
         status: 400,
         response: baseError.message,
       };
-    case 'unhandled':
-      return new Error(baseError.message);
+    case 'unhandled': {
+      const error = new Error(baseError.message);
+      error.stack = baseError.stack;
+      return error;
+    }
     case 'custom':
       return baseError;
     default:

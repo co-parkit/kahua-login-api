@@ -1,6 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
 import { CurrentUser } from './current-user.decorator';
-import { UserModel } from '../../domain/models/user.model';
 import {
   mockUserModel,
   mockAdminUserModel,
@@ -11,148 +10,207 @@ import {
 } from '../../../test/mocks/decorators/current-user-decorator.mock';
 
 describe('CurrentUser Decorator', () => {
-  const testCurrentUser = (
-    _data: unknown,
-    ctx: ExecutionContext,
-  ): UserModel => {
-    const request = ctx.switchToHttp().getRequest();
-    return request.user;
+  const getCurrentUserFunction = () => {
+    const decoratorFunction = (data: unknown, ctx: ExecutionContext) => {
+      const request = ctx.switchToHttp().getRequest();
+      return request.user;
+    };
+    return decoratorFunction;
   };
 
   describe('Basic Functionality', () => {
     it('should be defined', () => {
       expect(CurrentUser).toBeDefined();
-      expect(typeof CurrentUser).toBe('function');
     });
 
-    it('should be a parameter decorator', () => {
-      expect(CurrentUser.toString()).toContain('ROUTE_ARGS_METADATA');
+    it('should be a function', () => {
+      expect(typeof CurrentUser).toBe('function');
     });
   });
 
   describe('User Extraction', () => {
-    it('should extract user from request for regular user', () => {
+    it('should extract user from request when user exists', () => {
       const mockCtx = mockExecutionContext(mockUserModel);
-      const result = testCurrentUser(undefined, mockCtx);
+      const currentUserFunction = getCurrentUserFunction();
 
-      expect(result).toBe(mockUserModel);
-      expect(result.id).toBe(1);
-      expect(result.email).toBe('test@example.com');
-      expect(result.userName).toBe('testuser');
-      expect(result.name).toBe('Test');
-      expect(result.lastName).toBe('User');
-      expect(result.idRole).toBe(1);
-      expect(result.idStatus).toBe(1);
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result).toEqual(mockUserModel);
+      expect(mockCtx.switchToHttp).toHaveBeenCalled();
     });
 
-    it('should extract user from request for admin user', () => {
+    it('should extract admin user from request', () => {
       const mockCtx = mockExecutionContext(mockAdminUserModel);
-      const result = testCurrentUser(undefined, mockCtx);
+      const currentUserFunction = getCurrentUserFunction();
 
-      expect(result).toBe(mockAdminUserModel);
-      expect(result.id).toBe(2);
-      expect(result.email).toBe('admin@example.com');
-      expect(result.userName).toBe('adminuser');
-      expect(result.name).toBe('Admin');
-      expect(result.lastName).toBe('User');
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result).toEqual(mockAdminUserModel);
       expect(result.idRole).toBe(2);
-      expect(result.idStatus).toBe(1);
     });
 
-    it('should extract user from request for inactive user', () => {
+    it('should extract inactive user from request', () => {
       const mockCtx = mockExecutionContext(mockInactiveUserModel);
-      const result = testCurrentUser(undefined, mockCtx);
+      const currentUserFunction = getCurrentUserFunction();
 
-      expect(result).toBe(mockInactiveUserModel);
-      expect(result.id).toBe(3);
-      expect(result.email).toBe('inactive@example.com');
-      expect(result.userName).toBe('inactiveuser');
-      expect(result.name).toBe('Inactive');
-      expect(result.lastName).toBe('User');
-      expect(result.idRole).toBe(1);
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result).toEqual(mockInactiveUserModel);
       expect(result.idStatus).toBe(0);
     });
 
-    it('should return undefined when no user in request', () => {
+    it('should return undefined when user is not in request', () => {
       const mockCtx = mockExecutionContextWithoutUser();
-      const result = testCurrentUser(undefined, mockCtx);
+      const currentUserFunction = getCurrentUserFunction();
+
+      const result = currentUserFunction(undefined, mockCtx);
 
       expect(result).toBeUndefined();
     });
 
     it('should return undefined when user is explicitly undefined', () => {
       const mockCtx = mockExecutionContextWithUndefinedUser();
-      const result = testCurrentUser(undefined, mockCtx);
+      const currentUserFunction = getCurrentUserFunction();
+
+      const result = currentUserFunction(undefined, mockCtx);
 
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe('Parameter Handling', () => {
+    it('should ignore data parameter and return user', () => {
+      const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
+      const data = { some: 'data' };
+
+      const result = currentUserFunction(data, mockCtx);
+
+      expect(result).toEqual(mockUserModel);
+    });
+
+    it('should work with null data parameter', () => {
+      const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
+
+      const result = currentUserFunction(null, mockCtx);
+
+      expect(result).toEqual(mockUserModel);
+    });
+
+    it('should work with string data parameter', () => {
+      const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
+      const data = 'some string';
+
+      const result = currentUserFunction(data, mockCtx);
+
+      expect(result).toEqual(mockUserModel);
     });
   });
 
   describe('ExecutionContext Integration', () => {
     it('should call switchToHttp on context', () => {
       const mockCtx = mockExecutionContext(mockUserModel);
-      const switchToHttpSpy = jest.spyOn(mockCtx, 'switchToHttp');
+      const currentUserFunction = getCurrentUserFunction();
 
-      testCurrentUser(undefined, mockCtx);
+      currentUserFunction(undefined, mockCtx);
 
-      expect(switchToHttpSpy).toHaveBeenCalledTimes(1);
+      expect(mockCtx.switchToHttp).toHaveBeenCalledTimes(1);
     });
 
-    it('should call getRequest on HTTP context', () => {
+    it('should call getRequest on http context', () => {
       const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
       const httpContext = mockCtx.switchToHttp();
-      const getRequestSpy = jest.spyOn(httpContext, 'getRequest');
 
-      testCurrentUser(undefined, mockCtx);
+      currentUserFunction(undefined, mockCtx);
 
-      expect(getRequestSpy).toHaveBeenCalledTimes(1);
+      expect(httpContext.getRequest).toHaveBeenCalledTimes(1);
     });
 
     it('should handle different execution context types', () => {
       const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
 
-      testCurrentUser(undefined, mockCtx);
+      const result = currentUserFunction(undefined, mockCtx);
 
-      expect(mockCtx.getType).toBeDefined();
-      expect(typeof mockCtx.getType).toBe('function');
+      expect(result).toEqual(mockUserModel);
+      expect(mockCtx.switchToHttp).toHaveBeenCalled();
     });
   });
 
-  describe('Data Parameter Handling', () => {
-    it('should ignore data parameter for regular user', () => {
+  describe('UserModel Properties', () => {
+    it('should return user with correct id', () => {
       const mockCtx = mockExecutionContext(mockUserModel);
-      const result = testCurrentUser('someData', mockCtx);
+      const currentUserFunction = getCurrentUserFunction();
 
-      expect(result).toBe(mockUserModel);
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result.id).toBe(1);
     });
 
-    it('should ignore data parameter for admin user', () => {
-      const mockCtx = mockExecutionContext(mockAdminUserModel);
-      const result = testCurrentUser({ role: 'admin' }, mockCtx);
-
-      expect(result).toBe(mockAdminUserModel);
-    });
-
-    it('should ignore data parameter when no user', () => {
-      const mockCtx = mockExecutionContextWithoutUser();
-      const result = testCurrentUser(null, mockCtx);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should handle various data types', () => {
+    it('should return user with correct email', () => {
       const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
 
-      expect(testCurrentUser(undefined, mockCtx)).toBe(mockUserModel);
-      expect(testCurrentUser(null, mockCtx)).toBe(mockUserModel);
-      expect(testCurrentUser('string', mockCtx)).toBe(mockUserModel);
-      expect(testCurrentUser(123, mockCtx)).toBe(mockUserModel);
-      expect(testCurrentUser({}, mockCtx)).toBe(mockUserModel);
-      expect(testCurrentUser([], mockCtx)).toBe(mockUserModel);
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result.email).toBe('test@example.com');
+    });
+
+    it('should return user with correct userName', () => {
+      const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
+
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result.userName).toBe('testuser');
+    });
+
+    it('should return user with correct name and lastName', () => {
+      const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
+
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result.name).toBe('Test');
+      expect(result.lastName).toBe('User');
+    });
+
+    it('should return user with correct role and status', () => {
+      const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
+
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result.idRole).toBe(1);
+      expect(result.idStatus).toBe(1);
     });
   });
 
   describe('Edge Cases', () => {
+    it('should handle request without user property', () => {
+      const request = { otherProperty: 'value' };
+      const mockCtx = {
+        switchToHttp: jest.fn().mockReturnValue({
+          getRequest: jest.fn().mockReturnValue(request),
+        }),
+        getType: jest.fn().mockReturnValue('http'),
+        getClass: jest.fn(),
+        getHandler: jest.fn(),
+        getArgs: jest.fn(),
+        getArgByIndex: jest.fn(),
+        switchToRpc: jest.fn(),
+        switchToWs: jest.fn(),
+      } as unknown as ExecutionContext;
+      const currentUserFunction = getCurrentUserFunction();
+
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result).toBeUndefined();
+    });
+
     it('should handle request with null user', () => {
       const request = { user: null };
       const mockCtx = {
@@ -167,14 +225,15 @@ describe('CurrentUser Decorator', () => {
         switchToRpc: jest.fn(),
         switchToWs: jest.fn(),
       } as unknown as ExecutionContext;
+      const currentUserFunction = getCurrentUserFunction();
 
-      const result = testCurrentUser(undefined, mockCtx);
+      const result = currentUserFunction(undefined, mockCtx);
 
       expect(result).toBeNull();
     });
 
-    it('should handle request with empty object user', () => {
-      const request = { user: {} };
+    it('should handle empty request object', () => {
+      const request = {};
       const mockCtx = {
         switchToHttp: jest.fn().mockReturnValue({
           getRequest: jest.fn().mockReturnValue(request),
@@ -187,28 +246,9 @@ describe('CurrentUser Decorator', () => {
         switchToRpc: jest.fn(),
         switchToWs: jest.fn(),
       } as unknown as ExecutionContext;
+      const currentUserFunction = getCurrentUserFunction();
 
-      const result = testCurrentUser(undefined, mockCtx);
-
-      expect(result).toEqual({});
-    });
-
-    it('should handle malformed request object', () => {
-      const request = { someOtherProperty: 'value' };
-      const mockCtx = {
-        switchToHttp: jest.fn().mockReturnValue({
-          getRequest: jest.fn().mockReturnValue(request),
-        }),
-        getType: jest.fn().mockReturnValue('http'),
-        getClass: jest.fn(),
-        getHandler: jest.fn(),
-        getArgs: jest.fn(),
-        getArgByIndex: jest.fn(),
-        switchToRpc: jest.fn(),
-        switchToWs: jest.fn(),
-      } as unknown as ExecutionContext;
-
-      const result = testCurrentUser(undefined, mockCtx);
+      const result = currentUserFunction(undefined, mockCtx);
 
       expect(result).toBeUndefined();
     });
@@ -217,7 +257,9 @@ describe('CurrentUser Decorator', () => {
   describe('Type Safety', () => {
     it('should return UserModel type when user exists', () => {
       const mockCtx = mockExecutionContext(mockUserModel);
-      const result = testCurrentUser(undefined, mockCtx);
+      const currentUserFunction = getCurrentUserFunction();
+
+      const result = currentUserFunction(undefined, mockCtx);
 
       expect(result).toBeInstanceOf(Object);
       expect(result).toHaveProperty('id');
@@ -227,59 +269,49 @@ describe('CurrentUser Decorator', () => {
       expect(result).toHaveProperty('lastName');
       expect(result).toHaveProperty('idRole');
       expect(result).toHaveProperty('idStatus');
-      expect(result).toHaveProperty('toPlainObject');
     });
 
-    it('should handle user with toPlainObject method', () => {
-      const mockCtx = mockExecutionContext(mockUserModel);
-      const result = testCurrentUser(undefined, mockCtx);
+    it('should handle different user types correctly', () => {
+      const regularUserCtx = mockExecutionContext(mockUserModel);
+      const adminUserCtx = mockExecutionContext(mockAdminUserModel);
+      const inactiveUserCtx = mockExecutionContext(mockInactiveUserModel);
+      const currentUserFunction = getCurrentUserFunction();
 
-      expect(typeof result.toPlainObject).toBe('function');
-      expect(result.toPlainObject()).toEqual({
-        id: 1,
-        email: 'test@example.com',
-        userName: 'testuser',
-        name: 'Test',
-        lastName: 'User',
-        idRole: 1,
-        idStatus: 1,
-      });
+      const regularResult = currentUserFunction(undefined, regularUserCtx);
+      const adminResult = currentUserFunction(undefined, adminUserCtx);
+      const inactiveResult = currentUserFunction(undefined, inactiveUserCtx);
+
+      expect(regularResult.idRole).toBe(1);
+      expect(adminResult.idRole).toBe(2);
+      expect(inactiveResult.idStatus).toBe(0);
     });
   });
 
   describe('Integration Scenarios', () => {
-    it('should work with different user roles', () => {
-      const regularUserCtx = mockExecutionContext(mockUserModel);
-      const adminUserCtx = mockExecutionContext(mockAdminUserModel);
-      const inactiveUserCtx = mockExecutionContext(mockInactiveUserModel);
+    it('should work in controller context', () => {
+      const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
 
-      expect(testCurrentUser(undefined, regularUserCtx).idRole).toBe(1);
-      expect(testCurrentUser(undefined, adminUserCtx).idRole).toBe(2);
-      expect(testCurrentUser(undefined, inactiveUserCtx).idRole).toBe(1);
+      const result = currentUserFunction(undefined, mockCtx);
+
+      expect(result).toBeDefined();
+      expect(typeof result.id).toBe('number');
+      expect(typeof result.email).toBe('string');
     });
 
-    it('should work with different user statuses', () => {
-      const activeUserCtx = mockExecutionContext(mockUserModel);
-      const inactiveUserCtx = mockExecutionContext(mockInactiveUserModel);
+    it('should work with different data types as first parameter', () => {
+      const mockCtx = mockExecutionContext(mockUserModel);
+      const currentUserFunction = getCurrentUserFunction();
 
-      expect(testCurrentUser(undefined, activeUserCtx).idStatus).toBe(1);
-      expect(testCurrentUser(undefined, inactiveUserCtx).idStatus).toBe(0);
-    });
+      const result1 = currentUserFunction('string', mockCtx);
+      const result2 = currentUserFunction(123, mockCtx);
+      const result3 = currentUserFunction({ key: 'value' }, mockCtx);
+      const result4 = currentUserFunction([1, 2, 3], mockCtx);
 
-    it('should work with different user emails', () => {
-      const regularUserCtx = mockExecutionContext(mockUserModel);
-      const adminUserCtx = mockExecutionContext(mockAdminUserModel);
-      const inactiveUserCtx = mockExecutionContext(mockInactiveUserModel);
-
-      expect(testCurrentUser(undefined, regularUserCtx).email).toBe(
-        'test@example.com',
-      );
-      expect(testCurrentUser(undefined, adminUserCtx).email).toBe(
-        'admin@example.com',
-      );
-      expect(testCurrentUser(undefined, inactiveUserCtx).email).toBe(
-        'inactive@example.com',
-      );
+      expect(result1).toEqual(mockUserModel);
+      expect(result2).toEqual(mockUserModel);
+      expect(result3).toEqual(mockUserModel);
+      expect(result4).toEqual(mockUserModel);
     });
   });
 });

@@ -1,6 +1,7 @@
 import { ForgotPasswordUseCase } from './forgot-password.use-case';
 import { AuthService } from '../services/auth.service';
 import { ForgotPasswordDto } from '../dtos/login.dto';
+import { Response } from '../../domain/models/response.model';
 
 describe('ForgotPasswordUseCase', () => {
   let useCase: ForgotPasswordUseCase;
@@ -10,10 +11,6 @@ describe('ForgotPasswordUseCase', () => {
     const mockAuthService = {
       forgotPassword: jest.fn(),
     };
-
-    // NOTE: Using direct instantiation instead of @nestjs/testing due to dependency resolution issues
-    // While @nestjs/testing is the recommended approach, it fails with complex dependency injection
-    // in this specific case. Direct instantiation provides better control and reliability.
     useCase = new ForgotPasswordUseCase(mockAuthService as any);
     authService = mockAuthService as any;
   });
@@ -22,8 +19,50 @@ describe('ForgotPasswordUseCase', () => {
     expect(useCase).toBeDefined();
   });
 
-  // TODO: Implementar tests
-  // - should call authService.forgotPassword with correct email
-  // - should return the result from authService.forgotPassword
-  // - should handle errors from authService.forgotPassword
+  describe('execute', () => {
+    it('should call authService.forgotPassword with correct email', async () => {
+      const forgotPasswordDto: ForgotPasswordDto = {
+        email: 'test@test.com',
+      };
+      const expectedResult = Response.success(
+        { success: true, message: 'Email sent' },
+        'SUCCESS',
+      );
+
+      authService.forgotPassword.mockResolvedValue(expectedResult);
+
+      await useCase.execute(forgotPasswordDto);
+
+      expect(authService.forgotPassword).toHaveBeenCalledWith('test@test.com');
+    });
+
+    it('should return the result from authService.forgotPassword', async () => {
+      const forgotPasswordDto: ForgotPasswordDto = {
+        email: 'test@test.com',
+      };
+      const expectedResult = Response.success(
+        { success: true, message: 'Email sent' },
+        'SUCCESS',
+      );
+
+      authService.forgotPassword.mockResolvedValue(expectedResult);
+
+      const result = await useCase.execute(forgotPasswordDto);
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should handle errors from authService.forgotPassword', async () => {
+      const forgotPasswordDto: ForgotPasswordDto = {
+        email: 'test@test.com',
+      };
+      const error = new Error('Email service unavailable');
+
+      authService.forgotPassword.mockRejectedValue(error);
+
+      await expect(useCase.execute(forgotPasswordDto)).rejects.toThrow(
+        'Email service unavailable',
+      );
+    });
+  });
 });

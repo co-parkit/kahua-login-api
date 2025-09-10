@@ -18,8 +18,8 @@ import config from './config';
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 60000, // 60 segundos
-        limit: 5,   // 5 intentos
+        ttl: 60000,
+        limit: 5,
       },
       {
         name: 'medium',

@@ -1,6 +1,28 @@
 // Jest setup file
 // This file is executed before all tests
 
+// Polyfills for Node.js modules
+import { TextEncoder, TextDecoder } from 'util';
+
+// Mock crypto module for Node.js
+import * as crypto from 'crypto';
+
+Object.defineProperty(global, 'crypto', {
+  value: {
+    randomUUID: () => crypto.randomUUID(),
+    getRandomValues: (arr: any) => crypto.randomBytes(arr.length),
+  },
+});
+
+// Mock TextEncoder and TextDecoder
+Object.defineProperty(global, 'TextEncoder', {
+  value: TextEncoder,
+});
+
+Object.defineProperty(global, 'TextDecoder', {
+  value: TextDecoder,
+});
+
 // Increase timeout for integration tests
 jest.setTimeout(30000);
 

@@ -11,6 +11,11 @@ module.exports = {
       },
     }],
   },
+  globals: {
+    'ts-jest': {
+      useESM: false,
+    },
+  },
   collectCoverageFrom: [
     '**/*.(t|j)s',
     '!**/*.spec.ts',

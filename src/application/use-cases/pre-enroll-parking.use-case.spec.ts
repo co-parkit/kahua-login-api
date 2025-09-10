@@ -20,7 +20,7 @@ import {
 
 describe('PreEnrollParkingUseCase', () => {
   let useCase: PreEnrollParkingUseCase;
-  let parkingRepository: MockParkingRepository;
+  let parkingRepository: typeof MockParkingRepository;
 
   beforeEach(async () => {
     const mockParkingRepository = createMockParkingRepository();

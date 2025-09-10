@@ -32,7 +32,10 @@ describe('AuthRateLimitGuard', () => {
       ).rejects.toThrow(ThrottlerException);
 
       expect(response.setHeader).toHaveBeenCalledWith('X-RateLimit-Limit', '5');
-      expect(response.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', '0');
+      expect(response.setHeader).toHaveBeenCalledWith(
+        'X-RateLimit-Remaining',
+        '0',
+      );
       expect(response.setHeader).toHaveBeenCalledWith('Retry-After', '60');
       expect(response.setHeader).toHaveBeenCalledWith(
         'X-RateLimit-Reset',
@@ -51,7 +54,10 @@ describe('AuthRateLimitGuard', () => {
       ).rejects.toThrow(ThrottlerException);
 
       expect(response.setHeader).toHaveBeenCalledWith('X-RateLimit-Limit', '5');
-      expect(response.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', '0');
+      expect(response.setHeader).toHaveBeenCalledWith(
+        'X-RateLimit-Remaining',
+        '0',
+      );
       expect(response.setHeader).toHaveBeenCalledWith('Retry-After', '300');
       expect(response.setHeader).toHaveBeenCalledWith(
         'X-RateLimit-Reset',
@@ -70,7 +76,10 @@ describe('AuthRateLimitGuard', () => {
       ).rejects.toThrow(ThrottlerException);
 
       expect(response.setHeader).toHaveBeenCalledWith('X-RateLimit-Limit', '5');
-      expect(response.setHeader).toHaveBeenCalledWith('X-RateLimit-Remaining', '0');
+      expect(response.setHeader).toHaveBeenCalledWith(
+        'X-RateLimit-Remaining',
+        '0',
+      );
       expect(response.setHeader).toHaveBeenCalledWith('Retry-After', '1');
       expect(response.setHeader).toHaveBeenCalledWith(
         'X-RateLimit-Reset',
@@ -104,7 +113,10 @@ describe('AuthRateLimitGuard', () => {
       it.each(loginUrls)(
         'should throw login rate limit for URL: %s',
         async (url) => {
-          await testRateLimit(url, `${CODES.PKL_RATE_LIMIT_LOGIN.message} Try again in 60 seconds.`);
+          await testRateLimit(
+            url,
+            `${CODES.PKL_RATE_LIMIT_LOGIN.message} Try again in 60 seconds.`,
+          );
         },
       );
     });
@@ -138,7 +150,10 @@ describe('AuthRateLimitGuard', () => {
       it.each(generalUrls)(
         'should throw general rate limit for URL: %s',
         async (url) => {
-          await testRateLimit(url, `${CODES.PKL_RATE_LIMIT_GENERAL.message} Try again in 1 second.`);
+          await testRateLimit(
+            url,
+            `${CODES.PKL_RATE_LIMIT_GENERAL.message} Try again in 1 second.`,
+          );
         },
       );
     });
@@ -148,7 +163,8 @@ describe('AuthRateLimitGuard', () => {
         const testCases = [
           {
             url: TEST_ENDPOINTS.auth.login,
-            expectedMessage: 'Too many login attempts. Please try again later. Try again in 60 seconds.',
+            expectedMessage:
+              'Too many login attempts. Please try again later. Try again in 60 seconds.',
           },
           {
             url: TEST_ENDPOINTS.auth.forgotPassword,
@@ -157,7 +173,8 @@ describe('AuthRateLimitGuard', () => {
           },
           {
             url: TEST_ENDPOINTS.auth.register,
-            expectedMessage: 'Too many requests. Please try again later. Try again in 1 second.',
+            expectedMessage:
+              'Too many requests. Please try again later. Try again in 1 second.',
           },
         ];
 

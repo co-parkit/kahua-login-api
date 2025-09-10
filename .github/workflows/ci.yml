@@ -34,12 +34,12 @@ jobs:
       run: npm run test:cov:ci
       
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
-        file: ./coverage/lcov.info
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage/lcov.info
         flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+        fail_ci_if_error: true
         
     - name: Build application
       run: npm run build

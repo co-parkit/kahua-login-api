@@ -13,29 +13,33 @@ export class UserRepository implements IUserRepository {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findById(id: number): Promise<UserModel | null> {
-    const user = await this.userRepository.findOne({ where: { id } });
+  async findById(id: string): Promise<UserModel | null> {
+    const user = await this.userRepository.findOne({ 
+      where: { id },
+      relations: ['employeeProfile', 'customerProfile', 'role']
+    });
     return user ? UserModel.fromEntity(user) : null;
   }
 
   async findByEmail(email: string): Promise<UserModel | null> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({ 
+      where: { email },
+      relations: ['employeeProfile', 'customerProfile', 'role']
+    });
     return user ? UserModel.fromEntity(user) : null;
   }
 
   async findByUserName(userName: string): Promise<UserModel | null> {
-    const user = await this.userRepository.findOne({ where: { userName } });
-    return user ? UserModel.fromEntity(user) : null;
+    // En la nueva estructura no hay userName, solo email
+    return null;
   }
 
   async findByEmailOrUserName(
     email: string,
     userName: string,
   ): Promise<UserModel | null> {
-    const user = await this.userRepository.findOne({
-      where: [{ email }, { userName }],
-    });
-    return user ? UserModel.fromEntity(user) : null;
+    // En la nueva estructura solo buscamos por email
+    return this.findByEmail(email);
   }
 
   async create(userData: Partial<UserModel>): Promise<UserModel> {
@@ -44,14 +48,20 @@ export class UserRepository implements IUserRepository {
     return UserModel.fromEntity(savedUser);
   }
 
-  async update(id: number, userData: Partial<UserModel>): Promise<UserModel> {
+  async update(id: string, userData: Partial<UserModel>): Promise<UserModel> {
     await this.userRepository.update(id, userData);
-    const updatedUser = await this.userRepository.findOne({ where: { id } });
+    const updatedUser = await this.userRepository.findOne({ 
+      where: { id },
+      relations: ['employeeProfile', 'customerProfile', 'role']
+    });
     return UserModel.fromEntity(updatedUser);
   }
 
-  async delete(id: number): Promise<boolean> {
-    const result = await this.userRepository.delete(id);
+  async delete(id: string): Promise<boolean> {
+    // Soft delete - actualizar deleted_at
+    const result = await this.userRepository.update(id, { 
+      deleted_at: new Date() 
+    });
     return result.affected > 0;
   }
 
@@ -59,13 +69,16 @@ export class UserRepository implements IUserRepository {
     email: string,
     password: string,
   ): Promise<UserModel | null> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({ 
+      where: { email, deleted_at: null },
+      relations: ['employeeProfile', 'customerProfile', 'role']
+    });
 
     if (!user) {
       return null;
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return null;
     }

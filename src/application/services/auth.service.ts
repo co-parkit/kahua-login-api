@@ -33,10 +33,9 @@ export class AuthService implements IAuthService {
     const payload = {
       email: user.email,
       sub: user.id,
-      name: user.name,
-      lastName: user.lastName,
-      role: user.idRole,
-      status: user.idStatus,
+      user_type: user.user_type,
+      role_id: user.role_id,
+      full_name: user.full_name,
     };
 
     const secret = this.configService.get<string>(JWT_SECRET_KEY);
@@ -64,7 +63,7 @@ export class AuthService implements IAuthService {
     return await this.userRepository.findByEmail(email);
   }
 
-  async findUserById(id: number): Promise<UserModel | null> {
+  async findUserById(id: string): Promise<UserModel | null> {
     return await this.userRepository.findById(id);
   }
 
@@ -88,7 +87,7 @@ export class AuthService implements IAuthService {
     return user;
   }
 
-  private buildResetUrl(userId: number): string {
+  private buildResetUrl(userId: string): string {
     const token = this.jwtService.sign(
       { sub: userId },
       {
@@ -115,7 +114,7 @@ export class AuthService implements IAuthService {
           to: user.email,
           templateName: EMAIL_SENT.TEMPLATE_RESET,
           variables: {
-            name: user.name,
+            name: user.full_name || user.email,
             action: EMAIL_SENT.ACTION_RESET,
             resetUrl,
           },

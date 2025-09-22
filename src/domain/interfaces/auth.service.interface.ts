@@ -23,7 +23,7 @@ export interface IAuthService {
   /**
    * Busca un usuario por ID
    */
-  findUserById(id: number): Promise<UserModel | null>;
+  findUserById(id: string): Promise<UserModel | null>;
 
   /**
    * Procesa la solicitud de recuperación de contraseña

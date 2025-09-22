@@ -1,31 +1,51 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToOne,
+} from 'typeorm';
+import { Role } from './role.entity';
 
 @Entity({ name: 'users' })
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column({ nullable: false })
-  name: string;
-
-  @Column({ nullable: false })
-  lastName: string;
-
-  @Column({ nullable: true })
-  phone: string | null;
-
-  @Column({ nullable: false })
+  @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
-  @Column({ nullable: false })
-  password: string;
+  @Column({ type: 'text' })
+  password_hash: string;
 
-  @Column({ nullable: false })
-  userName: string;
+  @Column({
+    type: 'varchar',
+    length: 50,
+    enum: ['employee', 'customer'],
+  })
+  user_type: 'employee' | 'customer';
 
-  @Column({ type: 'int', nullable: false })
-  idRole: number;
+  @Column({ type: 'int', nullable: true })
+  role_id: number;
 
-  @Column({ type: 'int', default: 1, nullable: false })
-  idStatus: number;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_at: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updated_at: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
+
+  // Relaciones
+  @ManyToOne(() => Role, { nullable: true })
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
+
+  @OneToOne('EmployeeProfile', 'user', { nullable: true })
+  employeeProfile: any;
+
+  @OneToOne('CustomerProfile', 'user', { nullable: true })
+  customerProfile: any;
 }

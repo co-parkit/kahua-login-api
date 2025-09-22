@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import { PreEnrolledParking } from '../domain/entities/pre-enrolled-parking.entity';
 import { User } from '../domain/entities/user.entity';
 
 /**
@@ -13,7 +12,7 @@ import { User } from '../domain/entities/user.entity';
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: ':memory:',
-      entities: [User, PreEnrolledParking],
+      entities: [User],
       synchronize: true,
       autoLoadEntities: true,
       namingStrategy: new SnakeNamingStrategy(),

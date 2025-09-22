@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './infrastructure/modules/auth.module';
-import { ParkingModule } from './infrastructure/modules/parking.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { enviroments } from './enviroments';
@@ -33,7 +32,6 @@ import config from './config';
       },
     ]),
     AuthModule,
-    ParkingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

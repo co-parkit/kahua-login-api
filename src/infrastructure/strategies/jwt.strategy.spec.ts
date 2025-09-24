@@ -39,12 +39,10 @@ describe('JwtStrategy', () => {
     });
 
     it('should use ExtractJwt.fromAuthHeaderAsBearerToken for jwtFromRequest', () => {
-      // This is tested indirectly through the strategy instantiation
       expect(strategy).toBeDefined();
     });
 
     it('should set ignoreExpiration to false', () => {
-      // This is tested indirectly through the strategy instantiation
       expect(strategy).toBeDefined();
     });
 
@@ -136,7 +134,7 @@ describe('JwtStrategy', () => {
         lastName: null,
         role: null,
         status: null,
-      };
+      } as any;
 
       const result = strategy.validate(payloadWithNulls);
 
@@ -151,7 +149,7 @@ describe('JwtStrategy', () => {
         lastName: undefined,
         role: undefined,
         status: undefined,
-      };
+      } as any;
 
       const result = strategy.validate(payloadWithUndefined);
 

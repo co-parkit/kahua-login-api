@@ -11,7 +11,7 @@ import {
 
 describe('CurrentUser Decorator', () => {
   const getCurrentUserFunction = () => {
-    const decoratorFunction = (data: unknown, ctx: ExecutionContext) => {
+    const decoratorFunction = (_data: unknown, ctx: ExecutionContext) => {
       const request = ctx.switchToHttp().getRequest();
       return request.user;
     };

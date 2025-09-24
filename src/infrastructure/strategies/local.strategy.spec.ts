@@ -125,12 +125,14 @@ describe('LocalStrategy', () => {
         );
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
-        expect(error.message).toBe(CODES.PKL_USER_NOT_FOUND.message);
+        expect((error as UnauthorizedException).message).toBe(
+          CODES.PKL_USER_NOT_FOUND.message,
+        );
       }
     });
 
     it('should throw UnauthorizedException when user is undefined', async () => {
-      authService.validateUser.mockResolvedValue(undefined);
+      authService.validateUser.mockResolvedValue(undefined as any);
 
       await expect(
         strategy.validate(

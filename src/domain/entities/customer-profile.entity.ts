@@ -1,33 +1,34 @@
 import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { User } from './user.entity';
+import { TimestampColumn } from '../../infrastructure/decorators/timestamp-column.decorator';
 
 @Entity({ name: 'customer_profiles' })
 export class CustomerProfile {
   @PrimaryColumn({ type: 'uuid' })
-  user_id: string;
+  user_id!: string;
 
   @Column({ type: 'varchar', length: 150, nullable: true })
-  full_name: string;
+  full_name!: string | null;
 
   @Column({ type: 'varchar', length: 30, nullable: true })
-  phone: string;
+  phone!: string | null;
 
   @Column({ type: 'text', nullable: true })
-  profile_picture: string;
+  profile_picture!: string | null;
 
   @Column({ type: 'int', nullable: true })
-  city_id: number;
+  city_id!: number | null;
 
   @Column({ type: 'boolean', nullable: true })
-  accepted_terms: boolean;
+  accepted_terms!: boolean | null;
 
   @Column({ type: 'int', nullable: true })
-  age: number;
+  age!: number | null;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+  @TimestampColumn()
+  created_at!: Date;
 
-  // Relaciones
   @OneToOne('User', 'customerProfile')
   @JoinColumn({ name: 'user_id' })
-  user: any;
+  user?: User;
 }

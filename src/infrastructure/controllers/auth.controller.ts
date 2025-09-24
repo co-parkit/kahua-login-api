@@ -58,8 +58,13 @@ export class AuthController {
   async register(@Body() createUserDto: CreateUserDto) {
     const user = await this.registerUseCase.execute(createUserDto);
     return {
-      userId: user.id,
-      user: user.toPlainObject(),
+      success: true,
+      message: 'User created successfully',
+      data: {
+        userId: user.id,
+        user: user.toPlainObject(),
+      },
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -76,6 +81,12 @@ export class AuthController {
       'Demasiadas solicitudes de recuperación. Intenta de nuevo en 5 minutos.',
   })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return await this.forgotPasswordUseCase.execute(forgotPasswordDto);
+    const result = await this.forgotPasswordUseCase.execute(forgotPasswordDto);
+    return {
+      success: true,
+      message: 'Password reset email sent successfully',
+      data: result,
+      timestamp: new Date().toISOString(),
+    };
   }
 }

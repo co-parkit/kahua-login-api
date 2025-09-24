@@ -16,19 +16,6 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<UserModel | null>;
 
   /**
-   * Busca un usuario por nombre de usuario
-   */
-  findByUserName(userName: string): Promise<UserModel | null>;
-
-  /**
-   * Busca un usuario por email o nombre de usuario
-   */
-  findByEmailOrUserName(
-    email: string,
-    userName: string,
-  ): Promise<UserModel | null>;
-
-  /**
    * Crea un nuevo usuario
    */
   create(user: Partial<UserModel>): Promise<UserModel>;

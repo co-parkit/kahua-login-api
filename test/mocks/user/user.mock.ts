@@ -1,45 +1,64 @@
-import { UserModel } from '../../../src/domain/models/user.model';
+export const mockCreatedUser = {
+  id: '1',
+  email: 'john.doe@test.com',
+  passwordHash: 'hashedPassword123',
+  userType: 'employee',
+  roleId: 1,
+  createdAt: expect.any(Date),
+  updatedAt: expect.any(Date),
+  deletedAt: null,
+  fullName: undefined,
+  phone: undefined,
+  profilePicture: undefined,
+} as any;
 
-export const mockCreatedUser = new UserModel(
-  1,
-  'John',
-  'Doe',
-  'john.doe@test.com',
-  '1234567890',
-  'johndoe',
-  1,
-  1,
-);
+export const mockExistingUser = {
+  id: '2',
+  email: 'jane.smith@test.com',
+  userType: 'employee',
+  roleId: 1,
+  fullName: 'Jane Smith',
+  phone: '0987654321',
+  toPlainObject: jest.fn().mockReturnValue({
+    id: '2',
+    email: 'jane.smith@test.com',
+    userType: 'employee',
+    roleId: 1,
+    fullName: 'Jane Smith',
+    phone: '0987654321',
+  }),
+} as any;
 
-export const mockExistingUser = new UserModel(
-  2,
-  'Jane',
-  'Smith',
-  'jane.smith@test.com',
-  '0987654321',
-  'janesmith',
-  1,
-  1,
-);
+export const mockExistingUserWithSameEmail = {
+  id: '2',
+  email: 'john.doe@test.com',
+  userType: 'employee',
+  roleId: 1,
+  fullName: 'Jane Smith',
+  phone: '0987654321',
+  toPlainObject: jest.fn().mockReturnValue({
+    id: '2',
+    email: 'john.doe@test.com',
+    userType: 'employee',
+    roleId: 1,
+    fullName: 'Jane Smith',
+    phone: '0987654321',
+  }),
+} as any;
 
-export const mockExistingUserWithSameEmail = new UserModel(
-  2,
-  'Jane',
-  'Smith',
-  'john.doe@test.com',
-  '0987654321',
-  'janesmith',
-  1,
-  1,
-);
-
-export const mockExistingUserWithSameUsername = new UserModel(
-  2,
-  'Jane',
-  'Smith',
-  'jane.smith@test.com',
-  '0987654321',
-  'johndoe',
-  1,
-  1,
-);
+export const mockExistingUserWithSameUsername = {
+  id: '2',
+  email: 'jane.smith@test.com',
+  userType: 'employee',
+  roleId: 1,
+  fullName: 'Jane Smith',
+  phone: '0987654321',
+  toPlainObject: jest.fn().mockReturnValue({
+    id: '2',
+    email: 'jane.smith@test.com',
+    userType: 'employee',
+    roleId: 1,
+    fullName: 'Jane Smith',
+    phone: '0987654321',
+  }),
+} as any;

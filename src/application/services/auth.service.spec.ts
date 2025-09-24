@@ -24,19 +24,17 @@ describe('AuthService', () => {
   beforeEach(async () => {
     // Create mock user
     mockUser = {
-      id: 1,
+      id: '1',
       email: 'test@test.com',
-      name: 'John',
-      lastName: 'Doe',
-      idRole: 1,
-      idStatus: 1,
+      user_type: 'employee',
+      role_id: 1,
+      full_name: 'John Doe',
       toPlainObject: jest.fn().mockReturnValue({
-        id: 1,
+        id: '1',
         email: 'test@test.com',
-        name: 'John',
-        lastName: 'Doe',
-        idRole: 1,
-        idStatus: 1,
+        user_type: 'employee',
+        role_id: 1,
+        full_name: 'John Doe',
       }),
       hasRole: jest.fn().mockReturnValue(true),
     } as unknown as jest.Mocked<UserModel>;
@@ -53,7 +51,7 @@ describe('AuthService', () => {
 
     const mockConfigService = {
       get: jest.fn().mockImplementation((key: string) => {
-        const config = {
+        const config: Record<string, string> = {
           jwtSecret: 'test-secret',
           JWT_SECRET: 'test-secret',
           FRONTEND_URL: 'http://localhost:3000',
@@ -110,10 +108,9 @@ describe('AuthService', () => {
       const expectedPayload = {
         email: mockUser.email,
         sub: mockUser.id,
-        name: mockUser.name,
-        lastName: mockUser.lastName,
-        role: mockUser.idRole,
-        status: mockUser.idStatus,
+        userType: mockUser.userType,
+        roleId: mockUser.roleId,
+        fullName: mockUser.fullName,
       };
 
       // Act
@@ -213,10 +210,10 @@ describe('AuthService', () => {
       userRepository.findById.mockResolvedValue(mockUser);
 
       // Act
-      const result = await service.findUserById(1);
+      const result = await service.findUserById('1');
 
       // Assert
-      expect(userRepository.findById).toHaveBeenCalledWith(1);
+      expect(userRepository.findById).toHaveBeenCalledWith('1');
       expect(result).toBe(mockUser);
     });
 
@@ -225,7 +222,7 @@ describe('AuthService', () => {
       userRepository.findById.mockResolvedValue(null);
 
       // Act
-      const result = await service.findUserById(999);
+      const result = await service.findUserById('999');
 
       // Assert
       expect(result).toBeNull();
@@ -360,7 +357,7 @@ describe('AuthService', () => {
           to: mockUser.email,
           templateName: 'password-reset',
           variables: {
-            name: mockUser.name,
+            name: mockUser.fullName || mockUser.email,
             action: 'recuperar',
             resetUrl:
               'http://localhost:3000/reset-password?token=mock-jwt-token',

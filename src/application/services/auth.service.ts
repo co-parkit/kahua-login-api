@@ -33,9 +33,9 @@ export class AuthService implements IAuthService {
     const payload = {
       email: user.email,
       sub: user.id,
-      user_type: user.user_type,
-      role_id: user.role_id,
-      full_name: user.full_name,
+      user_type: user.userType,
+      role_id: user.roleId,
+      full_name: user.fullName,
     };
 
     const secret = this.configService.get<string>(JWT_SECRET_KEY);
@@ -54,7 +54,10 @@ export class AuthService implements IAuthService {
     try {
       return await this.userRepository.validateCredentials(email, password);
     } catch (error) {
-      this.logger.error('Error validating user', error.message);
+      this.logger.error(
+        'Error validating user',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
       return null;
     }
   }
@@ -114,7 +117,7 @@ export class AuthService implements IAuthService {
           to: user.email,
           templateName: EMAIL_SENT.TEMPLATE_RESET,
           variables: {
-            name: user.full_name || user.email,
+            name: user.fullName || user.email,
             action: EMAIL_SENT.ACTION_RESET,
             resetUrl,
           },
@@ -128,7 +131,10 @@ export class AuthService implements IAuthService {
       return new Response(CODES.KHL_NOTIFICATION_FAILED, response.data);
     } catch (error) {
       return new Response(CODES.KHL_NOTIFICATION_FAILED, {
-        error: error?.response?.data ?? CODES.KHL_NOTIFICATION_FAILED,
+        error:
+          error && typeof error === 'object' && 'response' in error
+            ? (error as { response: { data: any } }).response?.data
+            : CODES.KHL_NOTIFICATION_FAILED,
       });
     }
   }

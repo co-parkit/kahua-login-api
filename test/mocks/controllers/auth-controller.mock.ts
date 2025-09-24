@@ -1,24 +1,26 @@
 import { UserModel } from '../../../src/domain/models/user.model';
-import { LoginDto, ForgotPasswordDto } from '../../../src/application/dtos/login.dto';
+import {
+  LoginDto,
+  ForgotPasswordDto,
+} from '../../../src/application/dtos/login.dto';
 import { CreateUserDto } from '../../../src/application/dtos/register.dto';
-import { AuthResponseDto, UserCreateResponseDto } from '../../../src/application/dtos/response.dto';
+import {
+  AuthResponseDto,
+  UserCreateResponseDto,
+} from '../../../src/application/dtos/response.dto';
 
 export const mockUserModel = {
-  id: 1,
+  id: '1',
   email: 'test@example.com',
-  userName: 'testuser',
-  name: 'Test',
-  lastName: 'User',
-  idRole: 1,
-  idStatus: 1,
+  user_type: 'employee',
+  role_id: 1,
+  full_name: 'Test User',
   toPlainObject: jest.fn().mockReturnValue({
-    id: 1,
+    id: '1',
     email: 'test@example.com',
-    userName: 'testuser',
-    name: 'Test',
-    lastName: 'User',
-    idRole: 1,
-    idStatus: 1,
+    user_type: 'employee',
+    role_id: 1,
+    full_name: 'Test User',
   }),
 } as unknown as UserModel;
 
@@ -30,11 +32,8 @@ export const mockLoginDto: LoginDto = {
 export const mockCreateUserDto: CreateUserDto = {
   email: 'newuser@example.com',
   password: 'password123',
-  name: 'New',
-  lastName: 'User',
-  userName: 'newuser',
-  phone: '1234567890',
-  idRole: 1,
+  user_type: 'employee',
+  role_id: 1,
 };
 
 export const mockForgotPasswordDto: ForgotPasswordDto = {
@@ -44,36 +43,36 @@ export const mockForgotPasswordDto: ForgotPasswordDto = {
 export const mockAuthResponse: AuthResponseDto = {
   access_token: 'mock-jwt-token',
   user: {
-    id: 1,
+    id: '1',
     email: 'test@example.com',
-    userName: 'testuser',
-    name: 'Test',
-    lastName: 'User',
-    idRole: 1,
-    idStatus: 1,
+    user_type: 'employee',
+    role_id: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
 };
 
 export const mockUserCreateResponse: UserCreateResponseDto = {
-  userId: 1,
+  userId: '1',
   user: {
-    id: 1,
+    id: '1',
     email: 'newuser@example.com',
-    userName: 'newuser',
-    name: 'New',
-    lastName: 'User',
-    idRole: 1,
-    idStatus: 1,
+    user_type: 'employee',
+    role_id: 1,
+    created_at: new Date(),
+    updated_at: new Date(),
   },
 };
 
 export const mockForgotPasswordResponse = {
-  code: 'PKL_SUCCESS',
+  success: true,
   message: 'Password reset email sent successfully',
-  toJSON: jest.fn().mockReturnValue({
+  data: {
     code: 'PKL_SUCCESS',
     message: 'Password reset email sent successfully',
-  }),
+    toJSON: expect.any(Function),
+  },
+  timestamp: expect.any(String),
 };
 
 export const mockLoginUseCase = {

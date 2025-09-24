@@ -10,7 +10,8 @@ import config from './config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: enviroments[process.env.NODE_ENV] ?? '.env',
+      envFilePath:
+        enviroments[process.env.NODE_ENV as keyof typeof enviroments] ?? '.env',
       load: [config],
       isGlobal: true,
     }),

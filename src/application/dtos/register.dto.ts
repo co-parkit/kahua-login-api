@@ -13,30 +13,30 @@ export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
   @ApiProperty({ description: `user's email` })
-  readonly email: string;
+  readonly email!: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
   @ApiProperty({ description: `user's password` })
-  readonly password: string;
+  readonly password!: string;
 
   @IsEnum(['employee', 'customer'])
   @IsNotEmpty()
   @ApiProperty({ description: `user's type`, enum: ['employee', 'customer'] })
-  readonly user_type: 'employee' | 'customer';
+  readonly user_type!: 'employee' | 'customer';
 
   @IsNumber()
   @IsOptional()
   @ApiProperty({ description: `user's role_id`, required: false })
-  readonly role_id?: number;
+  readonly role_id?: number | null;
 }
 
 export class CreateEmployeeProfileDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: `employee's full name` })
-  readonly full_name: string;
+  readonly full_name!: string;
 
   @IsString()
   @IsOptional()
@@ -73,7 +73,7 @@ export class CreateCustomerProfileDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: `customer's full name` })
-  readonly full_name: string;
+  readonly full_name!: string;
 
   @IsString()
   @IsOptional()

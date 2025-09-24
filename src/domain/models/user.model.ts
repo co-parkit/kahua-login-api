@@ -1,52 +1,52 @@
 /**
- * Modelo de dominio para Usuario
- * Representa la lógica de negocio pura, sin dependencias de infraestructura
+ * Model of domain for User
+ * Represents the pure business logic, without infrastructure dependencies
  */
 export class UserModel {
   constructor(
     public readonly id: string,
     public readonly email: string,
-    public readonly password_hash: string,
-    public readonly user_type: 'employee' | 'customer',
-    public readonly role_id: number | null,
-    public readonly created_at: Date,
-    public readonly updated_at: Date,
-    public readonly deleted_at: Date | null,
-    public readonly full_name?: string,
+    public readonly passwordHash: string,
+    public readonly userType: 'employee' | 'customer',
+    public readonly roleId: number | null,
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date,
+    public readonly deletedAt: Date | null,
+    public readonly fullName?: string,
     public readonly phone?: string,
-    public readonly profile_picture?: string,
+    public readonly profilePicture?: string,
   ) {}
 
   isActive(): boolean {
-    return this.deleted_at === null;
+    return this.deletedAt === null;
   }
 
   /**
    * Valid if the user has a specific role
    */
   hasRole(roleId: number): boolean {
-    return this.role_id === roleId;
+    return this.roleId === roleId;
   }
 
   /**
    * Valid if the user is an employee
    */
   isEmployee(): boolean {
-    return this.user_type === 'employee';
+    return this.userType === 'employee';
   }
 
   /**
    * Valid if the user is a customer
    */
   isCustomer(): boolean {
-    return this.user_type === 'customer';
+    return this.userType === 'customer';
   }
 
   /**
    * Get the full name of the user
    */
   getFullName(): string {
-    return this.full_name || '';
+    return this.fullName || '';
   }
 
   /**
@@ -91,14 +91,14 @@ export class UserModel {
     return {
       id: this.id,
       email: this.email,
-      user_type: this.user_type,
-      role_id: this.role_id,
-      created_at: this.created_at,
-      updated_at: this.updated_at,
-      deleted_at: this.deleted_at,
-      full_name: this.full_name,
+      userType: this.userType,
+      roleId: this.roleId,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      deletedAt: this.deletedAt,
+      fullName: this.fullName,
       phone: this.phone,
-      profile_picture: this.profile_picture,
+      profilePicture: this.profilePicture,
     };
   }
 }

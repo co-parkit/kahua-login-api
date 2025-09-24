@@ -6,45 +6,47 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
+import { User } from './user.entity';
+import { TimestampColumn } from '../../infrastructure/decorators/timestamp-column.decorator';
 
 @Entity({ name: 'employee_profiles' })
 export class EmployeeProfile {
   @PrimaryColumn({ type: 'uuid' })
-  user_id: string;
+  user_id!: string;
 
   @Column({ type: 'varchar', length: 150, nullable: true })
-  full_name: string;
+  full_name!: string | null;
 
   @Column({ type: 'text', nullable: true })
-  profile_picture: string;
+  profile_picture!: string | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  department: string;
+  department!: string | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  position: string;
+  position!: string | null;
 
   @Column({ type: 'varchar', length: 30, nullable: true })
-  phone: string;
+  phone!: string | null;
 
   @Column({ type: 'int', nullable: true })
-  age: number;
+  age!: number | null;
 
   @Column({ type: 'int', nullable: true })
-  city_id: number;
+  city_id!: number | null;
 
   @Column({ type: 'uuid', nullable: true })
-  created_by: string;
+  created_by!: string | null;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+  @TimestampColumn()
+  created_at!: Date;
 
   // Relaciones
   @OneToOne('User', 'employeeProfile')
   @JoinColumn({ name: 'user_id' })
-  user: any;
+  user?: User;
 
   @ManyToOne('User', { nullable: true })
   @JoinColumn({ name: 'created_by' })
-  creator: any;
+  creator?: User;
 }

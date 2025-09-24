@@ -1,50 +1,56 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { CODES } from '../../config/general.codes';
+import { HttpStatus } from '@nestjs/common';
+import { BaseDomainException } from './base.exception';
 
 /**
- * Excepción para credenciales inválidas
+ * Exception for invalid credentials
  */
-export class InvalidCredentialsException extends HttpException {
+export class InvalidCredentialsException extends BaseDomainException {
   constructor() {
-    super(CODES.PKL_USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
-  }
-}
-
-/**
- * Excepción para usuario inactivo
- */
-export class InactiveUserException extends HttpException {
-  constructor() {
-    super(CODES.PKL_ROLE_NOT_ALLOWED, HttpStatus.FORBIDDEN);
-  }
-}
-
-/**
- * Excepción para email ya registrado
- */
-export class EmailAlreadyExistsException extends HttpException {
-  constructor(email: string) {
     super(
-      {
-        ...CODES.PKL_USER_EMAIL_EXIST,
-        message: `Email ${email} is already registered`,
-      },
-      HttpStatus.CONFLICT,
+      'PKL_USER_NOT_FOUND',
+      'Invalid email or password',
+      HttpStatus.UNAUTHORIZED,
     );
   }
 }
 
 /**
- * Excepción para nombre de usuario ya en uso
+ * Exception for inactive user
  */
-export class UsernameAlreadyExistsException extends HttpException {
+export class InactiveUserException extends BaseDomainException {
+  constructor() {
+    super(
+      'PKL_ROLE_NOT_ALLOWED',
+      'Contact your administrator to change your password.',
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
+
+/**
+ * Exception for email already registered
+ */
+export class EmailAlreadyExistsException extends BaseDomainException {
+  constructor(email: string) {
+    super(
+      'PKL_USER_EMAIL_EXIST',
+      `Email ${email} is already registered`,
+      HttpStatus.CONFLICT,
+      { email },
+    );
+  }
+}
+
+/**
+ * Exception for username already in use
+ */
+export class UsernameAlreadyExistsException extends BaseDomainException {
   constructor(username: string) {
     super(
-      {
-        ...CODES.PKL_USER_NAME_EXIST,
-        message: `Username ${username} is already in use`,
-      },
+      'PKL_USER_NAME_EXIST',
+      `Username ${username} is already in use`,
       HttpStatus.CONFLICT,
+      { username },
     );
   }
 }

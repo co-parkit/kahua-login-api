@@ -23,9 +23,9 @@ export class RegisterUseCase {
 
     const userData = {
       email: createUserDto.email,
-      password_hash: hashedPassword,
-      user_type: createUserDto.user_type,
-      role_id: createUserDto.role_id || null,
+      passwordHash: hashedPassword,
+      userType: createUserDto.user_type,
+      roleId: createUserDto.role_id || null,
     };
 
     return await this.userRepository.create(userData);

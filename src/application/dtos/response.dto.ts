@@ -2,57 +2,57 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UserResponseDto {
   @ApiProperty({ description: 'ID único del usuario' })
-  id: string;
+  readonly id!: string;
 
   @ApiProperty({ description: 'Email del usuario' })
-  email: string;
+  readonly email!: string;
 
   @ApiProperty({
     description: 'Tipo de usuario',
     enum: ['employee', 'customer'],
   })
-  user_type: 'employee' | 'customer';
+  readonly user_type!: 'employee' | 'customer';
 
   @ApiProperty({ description: 'ID del rol del usuario', required: false })
-  role_id?: number | null;
+  readonly role_id?: number | null;
 
   @ApiProperty({ description: 'Fecha de creación' })
-  created_at: Date;
+  readonly created_at!: Date;
 
   @ApiProperty({ description: 'Fecha de actualización' })
-  updated_at: Date;
+  readonly updated_at!: Date;
 
   @ApiProperty({ description: 'Fecha de eliminación', required: false })
-  deleted_at?: Date | null;
+  readonly deleted_at?: Date | null;
 
   @ApiProperty({ description: 'Nombre completo del usuario', required: false })
-  full_name?: string;
+  readonly full_name?: string;
 
   @ApiProperty({ description: 'Teléfono del usuario', required: false })
-  phone?: string;
+  readonly phone?: string;
 
   @ApiProperty({ description: 'Foto de perfil del usuario', required: false })
-  profile_picture?: string;
+  readonly profile_picture?: string;
 }
 
 export class AuthResponseDto {
   @ApiProperty({ description: 'Token de acceso JWT' })
-  access_token: string;
+  readonly access_token!: string;
 
   @ApiProperty({
     description: 'Información del usuario autenticado',
     type: UserResponseDto,
   })
-  user: UserResponseDto;
+  readonly user!: UserResponseDto;
 }
 
 export class UserCreateResponseDto {
   @ApiProperty({ description: 'ID del usuario creado' })
-  userId: string;
+  readonly userId!: string;
 
   @ApiProperty({
     description: 'Información del usuario creado',
     type: UserResponseDto,
   })
-  user: UserResponseDto;
+  readonly user!: UserResponseDto;
 }

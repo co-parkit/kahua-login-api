@@ -7,7 +7,7 @@ import { LoginUseCase } from '../../application/use-cases/login.use-case';
 import { RegisterUseCase } from '../../application/use-cases/register.use-case';
 import { ForgotPasswordUseCase } from '../../application/use-cases/forgot-password.use-case';
 import { LoginDto, ForgotPasswordDto } from '../../application/dtos/login.dto';
-import { CreateUserDto } from '../../application/dtos/register.dto';
+import { RegisterDto } from '../../application/dtos/register.dto';
 import {
   AuthResponseDto,
   UserCreateResponseDto,
@@ -27,17 +27,16 @@ export class AuthController {
   @UseGuards(AuthRateLimitGuard, AuthGuard('local'))
   @Throttle({ short: { limit: 5, ttl: 60000 } })
   @Post('login')
-  @ApiOperation({ summary: 'Autenticación de usuarios' })
+  @ApiOperation({ summary: 'Authentication of users' })
   @ApiResponse({
     status: 200,
-    description: 'Login exitoso',
+    description: 'Login successful',
     type: AuthResponseDto,
   })
-  @ApiResponse({ status: 401, description: 'Credenciales inválidas' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @ApiResponse({
     status: 429,
-    description:
-      'Demasiados intentos de login. Intenta de nuevo en 60 segundos.',
+    description: 'Too many login attempts. Try again in 60 seconds.',
   })
   async login(
     @CurrentUser() _user: UserModel,
@@ -47,16 +46,16 @@ export class AuthController {
   }
 
   @Post('register')
-  @ApiOperation({ summary: 'Registro de usuarios' })
+  @ApiOperation({ summary: 'Register users' })
   @ApiResponse({
     status: 201,
-    description: 'Usuario creado exitosamente',
+    description: 'User created successfully',
     type: UserCreateResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Datos inválidos' })
-  @ApiResponse({ status: 409, description: 'Usuario ya existe' })
-  async register(@Body() createUserDto: CreateUserDto) {
-    const user = await this.registerUseCase.execute(createUserDto);
+  @ApiResponse({ status: 400, description: 'Data invalid' })
+  @ApiResponse({ status: 409, description: 'User already exists' })
+  async register(@Body() registerDto: RegisterDto) {
+    const user = await this.registerUseCase.execute(registerDto);
     return {
       success: true,
       message: 'User created successfully',
@@ -71,14 +70,13 @@ export class AuthController {
   @UseGuards(AuthRateLimitGuard)
   @Throttle({ short: { limit: 3, ttl: 300000 } })
   @Post('forgot-password')
-  @ApiOperation({ summary: 'Recuperar contraseña por correo' })
-  @ApiResponse({ status: 200, description: 'Email de recuperación enviado' })
-  @ApiResponse({ status: 400, description: 'Email no encontrado' })
-  @ApiResponse({ status: 403, description: 'Rol no permitido' })
+  @ApiOperation({ summary: 'Recover password by email' })
+  @ApiResponse({ status: 200, description: 'Email recovery sent' })
+  @ApiResponse({ status: 400, description: 'Email not found' })
+  @ApiResponse({ status: 403, description: 'Role not allowed' })
   @ApiResponse({
     status: 429,
-    description:
-      'Demasiadas solicitudes de recuperación. Intenta de nuevo en 5 minutos.',
+    description: 'Too many recovery requests. Try again in 5 minutes.',
   })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     const result = await this.forgotPasswordUseCase.execute(forgotPasswordDto);

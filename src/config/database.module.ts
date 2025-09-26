@@ -36,7 +36,7 @@ import { CustomerProfile } from '../domain/entities/customer-profile.entity';
           password: configService.get<string>('PASSWORD_DATABASE'),
           database: configService.get<string>('NAME_DATABASE'),
           entities: [User, Role, EmployeeProfile, CustomerProfile],
-          synchronize: true, // ⚠️ solo en desarrollo, nunca en producción
+          synchronize: false, // ⚠️ solo en desarrollo, nunca en producción
           autoLoadEntities: true, // ahorra tener que listar todas las entities
           namingStrategy: new SnakeNamingStrategy(),
         };

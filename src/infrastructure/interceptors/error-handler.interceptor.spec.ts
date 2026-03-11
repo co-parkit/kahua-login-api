@@ -183,6 +183,16 @@ describe('ErrorHandlerInterceptor', () => {
   });
 
   describe('Logging Functionality', () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+
+    beforeEach(() => {
+      process.env.NODE_ENV = 'development';
+    });
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalNodeEnv;
+    });
+
     createTestCase(
       'should log errors with complete context information',
       () => {

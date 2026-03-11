@@ -124,9 +124,16 @@ describe('UserRepository', () => {
         roleId: 1,
       };
 
-      const createdEntity = { ...mockUserEntity, ...userData };
+      const createdEntity = {
+        ...mockUserEntity,
+        email: userData.email,
+        password_hash: userData.passwordHash,
+        user_type: userData.userType,
+        role_id: userData.roleId,
+      };
       typeOrmRepository.create.mockReturnValue(createdEntity as any);
       typeOrmRepository.save.mockResolvedValue(createdEntity);
+      typeOrmRepository.findOne.mockResolvedValue(createdEntity);
 
       const result = await repository.create(userData);
 
@@ -135,6 +142,7 @@ describe('UserRepository', () => {
         password_hash: userData.passwordHash,
         user_type: userData.userType,
         role_id: userData.roleId,
+        deleted_at: null,
       });
       expect(typeOrmRepository.save).toHaveBeenCalledWith(createdEntity);
       expect(result).toEqual(UserModel.fromEntity(createdEntity));

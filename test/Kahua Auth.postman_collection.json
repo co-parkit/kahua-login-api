@@ -1,0 +1,101 @@
+{
+  "info": {
+    "_postman_id": "e78bc8fe-5413-4bdf-9754-cccc8716e5f3",
+    "name": "Kahua Auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34080097",
+    "description": "Endpoints de la Kahua Login API (auth). Rutas bajo /auth."
+  },
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"juan.perez@example.com\",\n  \"password\": \"diego\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["auth", "login"]
+        },
+        "description": "Autenticación de usuarios. Respuesta incluye token JWT."
+      },
+      "response": []
+    },
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"SebasGomez@gmail.com\",\n  \"password\": \"Sebas1234\",\n  \"user_type\": \"employee\",\n  \"role_id\": 1,\n  \"name\": \"Sebas\",\n  \"last_name\": \"Gomez\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/auth/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["auth", "register"]
+        },
+        "description": "Registro de usuarios. user_type: 'employee' | 'customer'. password mínimo 8 caracteres."
+      },
+      "response": []
+    },
+    {
+      "name": "Forgot Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"michael55amaya@gmail.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3000/auth/forgot-password",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["auth", "forgot-password"]
+        },
+        "description": "Recuperación de contraseña por email. Limitado por rate limit (3 intentos / 5 min)."
+      },
+      "response": []
+    }
+  ]
+}

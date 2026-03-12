@@ -265,6 +265,16 @@ describe('ErrorHandlerInterceptor', () => {
   });
 
   describe('Data Sanitization', () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+
+    beforeEach(() => {
+      process.env.NODE_ENV = 'development';
+    });
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalNodeEnv;
+    });
+
     createTestCase(
       'should sanitize sensitive data in request body for logging',
       () => {

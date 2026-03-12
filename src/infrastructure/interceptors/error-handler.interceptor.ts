@@ -10,8 +10,8 @@ import { catchError } from 'rxjs/operators';
 import { CODES } from '../../config/general.codes';
 
 /**
- * Interceptor global para manejo centralizado de errores
- * Captura todos los errores no manejados y los formatea consistentemente
+ * Interceptor global for centralized error handling
+ * Captures all unhandled errors and formats them consistently
  */
 @Injectable()
 export class ErrorHandlerInterceptor implements NestInterceptor {
@@ -23,12 +23,15 @@ export class ErrorHandlerInterceptor implements NestInterceptor {
         const request = context.switchToHttp().getRequest();
         const { method, url, body } = request;
 
-        this.logger.error(`Error in ${method} ${url}`, {
-          error: error.message,
-          stack: error.stack,
-          body: this.sanitizeBody(body),
-          timestamp: new Date().toISOString(),
-        });
+        // Only log in environments that are not test to avoid noise in tests
+        if (process.env.NODE_ENV !== 'test') {
+          this.logger.error(`Error in ${method} ${url}`, {
+            error: error.message,
+            stack: error.stack,
+            body: this.sanitizeBody(body),
+            timestamp: new Date().toISOString(),
+          });
+        }
 
         if (error.status) {
           return throwError(() => error);

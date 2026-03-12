@@ -1,18 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RegisterUseCase } from './register.use-case';
 import { UserRepository } from '../../infrastructure/repositories/user.repository';
-import {
-  EmailAlreadyExistsException,
-  UsernameAlreadyExistsException,
-} from '../../domain/exceptions';
+import { EmailAlreadyExistsException } from '../../domain/exceptions';
 import * as bcrypt from 'bcrypt';
 import {
   mockCreatedUser,
-  mockExistingUser,
   mockExistingUserWithSameEmail,
-  mockExistingUserWithSameUsername,
 } from '../../../test/mocks/user/user.mock';
 import { mockCreateUserDto } from '../../../test/mocks/user/register-dto.mock';
+import { RegisterDto } from '../dtos/register.dto';
 import {
   createMockUserRepository,
   MockUserRepository,
@@ -48,19 +44,16 @@ describe('RegisterUseCase', () => {
   });
 
   const setupSuccessfulRegistration = () => {
-    userRepository.findByEmailOrUserName.mockResolvedValue(null);
     userRepository.create.mockResolvedValue(mockCreatedUser);
     mockedBcrypt.genSalt.mockResolvedValue('salt123' as never);
     mockedBcrypt.hash.mockResolvedValue('hashedPassword123' as never);
   };
 
   const setupBcryptError = (error: Error) => {
-    userRepository.findByEmailOrUserName.mockResolvedValue(null);
     mockedBcrypt.genSalt.mockImplementation(() => Promise.reject(error));
   };
 
   const setupHashError = (error: Error) => {
-    userRepository.findByEmailOrUserName.mockResolvedValue(null);
     mockedBcrypt.genSalt.mockResolvedValue('salt123' as never);
     mockedBcrypt.hash.mockImplementation(() => Promise.reject(error));
   };
@@ -81,10 +74,7 @@ describe('RegisterUseCase', () => {
         const result = await useCase.execute(mockCreateUserDto);
 
         // Assert
-        expect(userRepository.findByEmailOrUserName).toHaveBeenCalledWith(
-          mockCreateUserDto.email,
-          mockCreateUserDto.userName,
-        );
+
         expect(mockedBcrypt.genSalt).toHaveBeenCalled();
         expect(mockedBcrypt.hash).toHaveBeenCalledWith(
           mockCreateUserDto.password,
@@ -92,20 +82,16 @@ describe('RegisterUseCase', () => {
         );
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: mockCreateUserDto.name,
-            lastName: mockCreateUserDto.lastName,
             email: mockCreateUserDto.email,
-            phone: mockCreateUserDto.phone,
-            userName: mockCreateUserDto.userName,
-            password: 'hashedPassword123',
-            idRole: mockCreateUserDto.idRole,
-            idStatus: 1,
+            passwordHash: 'hashedPassword123',
+            userType: mockCreateUserDto.user_type,
+            roleId: mockCreateUserDto.role_id,
           }),
         );
         expect(result).toEqual(mockCreatedUser);
       });
 
-      it('should set idStatus to 1 by default', async () => {
+      it('should set userType correctly', async () => {
         // Arrange
         setupSuccessfulRegistration();
 
@@ -115,7 +101,7 @@ describe('RegisterUseCase', () => {
         // Assert
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            idStatus: 1,
+            userType: mockCreateUserDto.user_type,
           }),
         );
       });
@@ -136,7 +122,7 @@ describe('RegisterUseCase', () => {
         );
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            password: 'hashedPassword123',
+            passwordHash: 'hashedPassword123',
           }),
         );
       });
@@ -145,7 +131,7 @@ describe('RegisterUseCase', () => {
     describe('Validation Failures', () => {
       it('should throw EmailAlreadyExistsException when email exists', async () => {
         // Arrange
-        userRepository.findByEmailOrUserName.mockResolvedValue(
+        userRepository.findByEmail.mockResolvedValue(
           mockExistingUserWithSameEmail,
         );
 
@@ -153,35 +139,31 @@ describe('RegisterUseCase', () => {
         await expect(useCase.execute(mockCreateUserDto)).rejects.toThrow(
           EmailAlreadyExistsException,
         );
-        expect(userRepository.findByEmailOrUserName).toHaveBeenCalledWith(
+        expect(userRepository.findByEmail).toHaveBeenCalledWith(
           mockCreateUserDto.email,
-          mockCreateUserDto.userName,
         );
         expect(userRepository.create).not.toHaveBeenCalled();
       });
 
-      it('should throw UsernameAlreadyExistsException when username exists', async () => {
+      it('should throw EmailAlreadyExistsException when email exists', async () => {
         // Arrange
-        userRepository.findByEmailOrUserName.mockResolvedValue(
-          mockExistingUserWithSameUsername,
+        userRepository.findByEmail.mockResolvedValue(
+          mockExistingUserWithSameEmail,
         );
 
         // Act & Assert
         await expect(useCase.execute(mockCreateUserDto)).rejects.toThrow(
-          UsernameAlreadyExistsException,
+          EmailAlreadyExistsException,
         );
-        expect(userRepository.findByEmailOrUserName).toHaveBeenCalledWith(
+        expect(userRepository.findByEmail).toHaveBeenCalledWith(
           mockCreateUserDto.email,
-          mockCreateUserDto.userName,
         );
         expect(userRepository.create).not.toHaveBeenCalled();
       });
 
-      it('should not throw exception when existing user has different email and username', async () => {
+      it('should not throw exception when existing user has different email', async () => {
         // Arrange
-        userRepository.findByEmailOrUserName.mockResolvedValue(
-          mockExistingUser,
-        );
+        userRepository.findByEmail.mockResolvedValue(null);
         userRepository.create.mockResolvedValue(mockCreatedUser);
         mockedBcrypt.genSalt.mockResolvedValue('salt123' as never);
         mockedBcrypt.hash.mockResolvedValue('hashedPassword123' as never);
@@ -196,7 +178,7 @@ describe('RegisterUseCase', () => {
     });
 
     describe('Repository Integration', () => {
-      it('should call userRepository.findByEmailOrUserName with correct parameters', async () => {
+      it('should call userRepository.findByEmail with correct parameters', async () => {
         // Arrange
         setupSuccessfulRegistration();
 
@@ -204,10 +186,9 @@ describe('RegisterUseCase', () => {
         await useCase.execute(mockCreateUserDto);
 
         // Assert
-        expect(userRepository.findByEmailOrUserName).toHaveBeenCalledTimes(1);
-        expect(userRepository.findByEmailOrUserName).toHaveBeenCalledWith(
+        expect(userRepository.findByEmail).toHaveBeenCalledTimes(1);
+        expect(userRepository.findByEmail).toHaveBeenCalledWith(
           mockCreateUserDto.email,
-          mockCreateUserDto.userName,
         );
       });
 
@@ -222,24 +203,81 @@ describe('RegisterUseCase', () => {
         expect(userRepository.create).toHaveBeenCalledTimes(1);
         expect(userRepository.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: mockCreateUserDto.name,
-            lastName: mockCreateUserDto.lastName,
             email: mockCreateUserDto.email,
-            phone: mockCreateUserDto.phone,
-            userName: mockCreateUserDto.userName,
-            password: 'hashedPassword123',
-            idRole: mockCreateUserDto.idRole,
-            idStatus: 1,
+            passwordHash: 'hashedPassword123',
+            userType: mockCreateUserDto.user_type,
+            roleId: mockCreateUserDto.role_id,
           }),
         );
       });
     });
 
+    describe('fullName and roleId branches', () => {
+      it('should use full_name when provided', async () => {
+        setupSuccessfulRegistration();
+        const dto: RegisterDto = {
+          ...mockCreateUserDto,
+          full_name: 'Full Name Only',
+        };
+
+        await useCase.execute(dto);
+
+        expect(userRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({ fullName: 'Full Name Only' }),
+        );
+      });
+
+      it('should build fullName from name and last_name when full_name not set', async () => {
+        setupSuccessfulRegistration();
+        const dto: RegisterDto = {
+          ...mockCreateUserDto,
+          name: 'Jane',
+          last_name: 'Smith',
+        };
+
+        await useCase.execute(dto);
+
+        expect(userRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({ fullName: 'Jane Smith' }),
+        );
+      });
+
+      it('should use id_role when role_id is not set', async () => {
+        setupSuccessfulRegistration();
+        const dto: RegisterDto = {
+          ...mockCreateUserDto,
+          role_id: undefined,
+          id_role: 2,
+        };
+
+        await useCase.execute(dto);
+
+        expect(userRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({ roleId: 2 }),
+        );
+      });
+
+      it('should pass acceptedTerms for customer user type', async () => {
+        setupSuccessfulRegistration();
+        const dto: RegisterDto = {
+          ...mockCreateUserDto,
+          user_type: 'customer',
+          accepted_terms: true,
+        };
+
+        await useCase.execute(dto);
+
+        expect(userRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({ acceptedTerms: true }),
+        );
+      });
+    });
+
     describe('Error Handling', () => {
-      it('should propagate errors from userRepository.findByEmailOrUserName', async () => {
+      it('should propagate errors from userRepository.findByEmail', async () => {
         // Arrange
         const error = new Error('Database connection failed');
-        userRepository.findByEmailOrUserName.mockRejectedValue(error);
+        userRepository.findByEmail.mockRejectedValue(error);
 
         // Act & Assert
         await expect(useCase.execute(mockCreateUserDto)).rejects.toThrow(error);
@@ -249,14 +287,14 @@ describe('RegisterUseCase', () => {
       it('should propagate errors from userRepository.create', async () => {
         // Arrange
         const error = new Error('Failed to create user');
-        userRepository.findByEmailOrUserName.mockResolvedValue(null);
+        userRepository.findByEmail.mockResolvedValue(null);
         userRepository.create.mockRejectedValue(error);
         mockedBcrypt.genSalt.mockResolvedValue('salt123' as never);
         mockedBcrypt.hash.mockResolvedValue('hashedPassword123' as never);
 
         // Act & Assert
         await expect(useCase.execute(mockCreateUserDto)).rejects.toThrow(error);
-        expect(userRepository.findByEmailOrUserName).toHaveBeenCalled();
+        expect(userRepository.findByEmail).toHaveBeenCalled();
       });
 
       it('should propagate errors from bcrypt.genSalt', async () => {

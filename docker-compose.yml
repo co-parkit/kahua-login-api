@@ -1,0 +1,60 @@
+# Ejecutar migraciones y opcionalmente la API usando la BD de kahua-infra.
+# Requisito: levantar antes kahua-infra (docker-compose up -d) para que exista la red kahua-net y el contenedor kahua-postgres.
+
+services:
+  migrate:
+    image: node:20-alpine
+    container_name: kahua-login-api-migrate
+    working_dir: /app
+    volumes:
+      - .:/app
+    env_file: .env
+    environment:
+      HOST_DATABASE: kahua-postgres
+      PORT_DATABASE: "5432"
+      NAME_DATABASE: ${NAME_DATABASE:-kahua}
+      USER_DATABASE: ${USER_DATABASE}
+      PASSWORD_DATABASE: ${PASSWORD_DATABASE}
+    command: >
+      sh -c "
+        echo 'Esperando a PostgreSQL...' &&
+        for i in 1 2 3 4 5 6 7 8 9 10; do
+          node -e \"
+            const net = require('net');
+            const s = net.createConnection(5432, 'kahua-postgres', () => { s.destroy(); process.exit(0); });
+            s.on('error', () => process.exit(1));
+          \" && break || sleep 3;
+        done &&
+        npm ci &&
+        npm run migration:run
+      "
+    networks:
+      - kahua-net
+    restart: "no"
+
+  api:
+    image: node:20-alpine
+    container_name: kahua-login-api
+    working_dir: /app
+    volumes:
+      - .:/app
+    env_file: .env
+    environment:
+      HOST: kahua-postgres
+      HOST_DATABASE: kahua-postgres
+      PORT_DATABASE: "5432"
+      NAME_DATABASE: ${NAME_DATABASE:-kahua}
+      USER_DATABASE: ${USER_DATABASE}
+      PASSWORD_DATABASE: ${PASSWORD_DATABASE}
+    ports:
+      - "${PORT:-3000}:3000"
+    command: sh -c "npm ci --omit=dev && npm run build && node dist/main"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - kahua-net
+
+networks:
+  kahua-net:
+    external: true

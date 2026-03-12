@@ -18,6 +18,11 @@ import { DatabaseModule } from '../../config/database.module';
 import { MyLogger } from '../../config/logger';
 import config from '../../config';
 
+const MyLoggerProvider = {
+  provide: MyLogger,
+  useFactory: () => new MyLogger('AuthModule'),
+};
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
@@ -45,7 +50,7 @@ import config from '../../config';
     UserRepository,
     LocalStrategy,
     JwtStrategy,
-    MyLogger,
+    MyLoggerProvider,
   ],
   exports: [AuthService, UserRepository, MyLogger],
 })

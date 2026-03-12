@@ -8,25 +8,12 @@ export interface IUserRepository {
   /**
    * Busca un usuario por ID
    */
-  findById(id: number): Promise<UserModel | null>;
+  findById(id: string): Promise<UserModel | null>;
 
   /**
    * Busca un usuario por email
    */
   findByEmail(email: string): Promise<UserModel | null>;
-
-  /**
-   * Busca un usuario por nombre de usuario
-   */
-  findByUserName(userName: string): Promise<UserModel | null>;
-
-  /**
-   * Busca un usuario por email o nombre de usuario
-   */
-  findByEmailOrUserName(
-    email: string,
-    userName: string,
-  ): Promise<UserModel | null>;
 
   /**
    * Crea un nuevo usuario
@@ -36,12 +23,12 @@ export interface IUserRepository {
   /**
    * Actualiza un usuario existente
    */
-  update(id: number, user: Partial<UserModel>): Promise<UserModel>;
+  update(id: string, user: Partial<UserModel>): Promise<UserModel>;
 
   /**
-   * Elimina un usuario
+   * Elimina un usuario (soft delete)
    */
-  delete(id: number): Promise<boolean>;
+  delete(id: string): Promise<boolean>;
 
   /**
    * Valida las credenciales de un usuario

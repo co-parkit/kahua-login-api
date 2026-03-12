@@ -134,8 +134,13 @@ describe('AuthController', () => {
       const result = await controller.register(mockCreateUserDto);
 
       expect(result).toEqual({
-        userId: mockUserModel.id,
-        user: mockUserModel.toPlainObject(),
+        success: true,
+        message: 'User created successfully',
+        data: {
+          userId: mockUserModel.id,
+          user: mockUserModel.toPlainObject(),
+        },
+        timestamp: expect.any(String),
       });
       expect(registerUseCase.execute).toHaveBeenCalledWith(mockCreateUserDto);
       expect(registerUseCase.execute).toHaveBeenCalledTimes(1);
@@ -154,10 +159,10 @@ describe('AuthController', () => {
 
       const result = await controller.register(mockCreateUserDto);
 
-      expect(result).toHaveProperty('userId');
-      expect(result).toHaveProperty('user');
-      expect(result.userId).toBe(mockUserModel.id);
-      expect(result.user).toEqual(mockUserModel.toPlainObject());
+      expect(result).toHaveProperty('success');
+      expect(result).toHaveProperty('data');
+      expect(result.data.userId).toBe(mockUserModel.id);
+      expect(result.data.user).toEqual(mockUserModel.toPlainObject());
     });
 
     it('should handle errors from register use case', async () => {
@@ -190,16 +195,21 @@ describe('AuthController', () => {
 
       const result = await controller.register(mockCreateUserDto);
 
-      expect(result.userId).toBe(differentUser.id);
-      expect(result.user).toEqual(differentUser.toPlainObject());
+      expect(result.data.userId).toBe(differentUser.id);
+      expect(result.data.user).toEqual(differentUser.toPlainObject());
     });
   });
 
   describe('forgotPassword', () => {
     it('should handle forgot password request successfully', async () => {
-      forgotPasswordUseCase.execute.mockResolvedValue(
-        mockForgotPasswordResponse,
-      );
+      forgotPasswordUseCase.execute.mockResolvedValue({
+        code: 'PKL_SUCCESS',
+        message: 'Password reset email sent successfully',
+        toJSON: jest.fn().mockReturnValue({
+          code: 'PKL_SUCCESS',
+          message: 'Password reset email sent successfully',
+        }),
+      });
 
       const result = await controller.forgotPassword(mockForgotPasswordDto);
 
@@ -211,9 +221,14 @@ describe('AuthController', () => {
     });
 
     it('should call forgot password use case with correct parameters', async () => {
-      forgotPasswordUseCase.execute.mockResolvedValue(
-        mockForgotPasswordResponse,
-      );
+      forgotPasswordUseCase.execute.mockResolvedValue({
+        code: 'PKL_SUCCESS',
+        message: 'Password reset email sent successfully',
+        toJSON: jest.fn().mockReturnValue({
+          code: 'PKL_SUCCESS',
+          message: 'Password reset email sent successfully',
+        }),
+      });
 
       await controller.forgotPassword(mockForgotPasswordDto);
 
@@ -223,9 +238,14 @@ describe('AuthController', () => {
     });
 
     it('should return proper response format', async () => {
-      forgotPasswordUseCase.execute.mockResolvedValue(
-        mockForgotPasswordResponse,
-      );
+      forgotPasswordUseCase.execute.mockResolvedValue({
+        code: 'PKL_SUCCESS',
+        message: 'Password reset email sent successfully',
+        toJSON: jest.fn().mockReturnValue({
+          code: 'PKL_SUCCESS',
+          message: 'Password reset email sent successfully',
+        }),
+      });
 
       const result = await controller.forgotPassword(mockForgotPasswordDto);
 
@@ -248,9 +268,14 @@ describe('AuthController', () => {
 
     it('should work with different email addresses', async () => {
       const differentEmail = { email: 'different@example.com' };
-      forgotPasswordUseCase.execute.mockResolvedValue(
-        mockForgotPasswordResponse,
-      );
+      forgotPasswordUseCase.execute.mockResolvedValue({
+        code: 'PKL_SUCCESS',
+        message: 'Password reset email sent successfully',
+        toJSON: jest.fn().mockReturnValue({
+          code: 'PKL_SUCCESS',
+          message: 'Password reset email sent successfully',
+        }),
+      });
 
       const result = await controller.forgotPassword(differentEmail);
 
@@ -276,19 +301,21 @@ describe('AuthController', () => {
       const emptyCreateDto = {
         email: '',
         password: '',
-        name: '',
-        lastName: '',
-        userName: '',
-        phone: '',
-        idRole: 1,
+        user_type: 'employee' as const,
+        role_id: 1,
       };
       const emptyForgotDto = { email: '' };
 
       loginUseCase.execute.mockResolvedValue(mockAuthResponse);
       registerUseCase.execute.mockResolvedValue(mockUserModel);
-      forgotPasswordUseCase.execute.mockResolvedValue(
-        mockForgotPasswordResponse,
-      );
+      forgotPasswordUseCase.execute.mockResolvedValue({
+        code: 'PKL_SUCCESS',
+        message: 'Password reset email sent successfully',
+        toJSON: jest.fn().mockReturnValue({
+          code: 'PKL_SUCCESS',
+          message: 'Password reset email sent successfully',
+        }),
+      });
 
       await controller.login(mockUserModel, emptyLoginDto);
       await controller.register(emptyCreateDto);
@@ -311,7 +338,12 @@ describe('AuthController', () => {
       );
 
       expect(loginResult).toBeUndefined();
-      expect(forgotResult).toBeUndefined();
+      expect(forgotResult).toEqual({
+        success: true,
+        message: 'Password reset email sent successfully',
+        data: undefined,
+        timestamp: expect.any(String),
+      });
 
       registerUseCase.execute.mockResolvedValue(undefined as any);
       await expect(controller.register(mockCreateUserDto)).rejects.toThrow();

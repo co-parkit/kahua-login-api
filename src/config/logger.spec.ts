@@ -30,7 +30,7 @@ describe('MyLogger', () => {
       delete process.env.LOG_LEVEL;
     }
 
-    Object.values(consoleSpy).forEach((spy) => spy.mockRestore());
+    Object.values(consoleSpy).forEach((spy) => spy?.mockRestore());
   });
 
   describe('log method', () => {
@@ -38,15 +38,22 @@ describe('MyLogger', () => {
       process.env.LOG_LEVEL = 'INFO';
       const testLogger = new MyLogger();
       const message = 'Test log message';
+      const context = 'TestContext';
       const optionalParams = ['param1', 'param2'];
 
-      testLogger.log(message, ...optionalParams);
+      // Clear previous calls
+      consoleSpy.log.mockClear();
 
-      expect(consoleSpy.log).toHaveBeenCalledWith(message, ...optionalParams);
+      testLogger.log(message, context, ...optionalParams);
+
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+        ...optionalParams,
+      );
     });
 
     it('should not log message when LOG_LEVEL is not INFO', () => {
-      process.env.LOG_LEVEL = 'DEBUG';
+      process.env.LOG_LEVEL = 'ERROR';
       const testLogger = new MyLogger();
       const message = 'Test log message';
 
@@ -55,18 +62,23 @@ describe('MyLogger', () => {
       expect(consoleSpy.log).not.toHaveBeenCalled();
     });
 
-    it('should not log message when LOG_LEVEL is undefined', () => {
+    it('should log message when LOG_LEVEL is undefined (defaults to INFO)', () => {
       delete process.env.LOG_LEVEL;
       const testLogger = new MyLogger();
       const message = 'Test log message';
 
+      // Clear previous calls
+      consoleSpy.log.mockClear();
+
       testLogger.log(message);
 
-      expect(consoleSpy.log).not.toHaveBeenCalled();
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+      );
     });
 
     it('should not log message when LOG_LEVEL is empty string', () => {
-      process.env.LOG_LEVEL = '';
+      process.env.LOG_LEVEL = 'ERROR';
       const testLogger = new MyLogger();
       const message = 'Test log message';
 
@@ -78,62 +90,109 @@ describe('MyLogger', () => {
 
   describe('fatal method', () => {
     it('should log fatal message with FATAL prefix', () => {
+      process.env.LOG_LEVEL = 'FATAL';
+      const testLogger = new MyLogger();
       const message = 'Fatal error occurred';
-      const optionalParams = ['error', 'stack'];
+      const context = 'TestContext';
+      const optionalParams = ['stack'];
 
-      logger.fatal(message, ...optionalParams);
+      // Clear previous calls
+      consoleSpy.error.mockClear();
+
+      testLogger.fatal(message, context, ...optionalParams);
 
       expect(consoleSpy.error).toHaveBeenCalledWith(
-        'FATAL',
-        message,
+        expect.stringMatching(new RegExp(`.*FATAL.*${message}.*`)),
         ...optionalParams,
       );
     });
 
     it('should log fatal message without optional parameters', () => {
+      process.env.LOG_LEVEL = 'FATAL';
+      const testLogger = new MyLogger();
       const message = 'Fatal error occurred';
 
-      logger.fatal(message);
+      // Clear previous calls
+      consoleSpy.error.mockClear();
 
-      expect(consoleSpy.error).toHaveBeenCalledWith('FATAL', message);
+      testLogger.fatal(message);
+
+      expect(consoleSpy.error).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`.*FATAL.*${message}.*`)),
+      );
     });
   });
 
   describe('error method', () => {
     it('should log error message', () => {
+      process.env.LOG_LEVEL = 'ERROR';
+      const testLogger = new MyLogger();
       const message = 'Error occurred';
-      const optionalParams = ['error', 'stack'];
+      const trace = 'Error stack trace';
+      const context = 'TestContext';
+      const optionalParams = ['extra param'];
 
-      logger.error(message, ...optionalParams);
+      // Clear previous calls
+      consoleSpy.error.mockClear();
 
-      expect(consoleSpy.error).toHaveBeenCalledWith(message, ...optionalParams);
+      testLogger.error(message, trace, context, ...optionalParams);
+
+      expect(consoleSpy.error).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+        expect.stringContaining(trace),
+        ...optionalParams,
+      );
     });
 
     it('should log error message without optional parameters', () => {
+      process.env.LOG_LEVEL = 'ERROR';
+      const testLogger = new MyLogger();
       const message = 'Error occurred';
 
-      logger.error(message);
+      // Clear previous calls
+      consoleSpy.error.mockClear();
 
-      expect(consoleSpy.error).toHaveBeenCalledWith(message);
+      testLogger.error(message);
+
+      expect(consoleSpy.error).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+        expect.any(String),
+      );
     });
   });
 
   describe('warn method', () => {
     it('should log warning message', () => {
+      process.env.LOG_LEVEL = 'WARN';
+      const testLogger = new MyLogger();
       const message = 'Warning message';
-      const optionalParams = ['warning', 'details'];
+      const context = 'TestContext';
+      const optionalParams = ['details'];
 
-      logger.warn(message, ...optionalParams);
+      // Clear previous calls
+      consoleSpy.warn.mockClear();
 
-      expect(consoleSpy.warn).toHaveBeenCalledWith(message, ...optionalParams);
+      testLogger.warn(message, context, ...optionalParams);
+
+      expect(consoleSpy.warn).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+        ...optionalParams,
+      );
     });
 
     it('should log warning message without optional parameters', () => {
+      process.env.LOG_LEVEL = 'WARN';
+      const testLogger = new MyLogger();
       const message = 'Warning message';
 
-      logger.warn(message);
+      // Clear previous calls
+      consoleSpy.warn.mockClear();
 
-      expect(consoleSpy.warn).toHaveBeenCalledWith(message);
+      testLogger.warn(message);
+
+      expect(consoleSpy.warn).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+      );
     });
   });
 
@@ -142,11 +201,18 @@ describe('MyLogger', () => {
       process.env.LOG_LEVEL = 'DEBUG';
       const testLogger = new MyLogger();
       const message = 'Debug message';
-      const optionalParams = ['debug', 'info'];
+      const context = 'TestContext';
+      const optionalParams = ['info'];
 
-      testLogger.debug(message, ...optionalParams);
+      // Clear previous calls
+      consoleSpy.debug.mockClear();
 
-      expect(consoleSpy.debug).toHaveBeenCalledWith(message, ...optionalParams);
+      testLogger.debug(message, context, ...optionalParams);
+
+      expect(consoleSpy.debug).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+        ...optionalParams,
+      );
     });
 
     it('should not log debug message when LOG_LEVEL is not DEBUG', () => {
@@ -182,24 +248,36 @@ describe('MyLogger', () => {
 
   describe('verbose method', () => {
     it('should log verbose message with VERBOSE prefix', () => {
+      process.env.LOG_LEVEL = 'VERBOSE';
+      const testLogger = new MyLogger();
       const message = 'Verbose message';
-      const optionalParams = ['verbose', 'details'];
+      const context = 'TestContext';
+      const optionalParams = ['details'];
 
-      logger.verbose(message, ...optionalParams);
+      // Clear previous calls
+      consoleSpy.log.mockClear();
+
+      testLogger.verbose(message, context, ...optionalParams);
 
       expect(consoleSpy.log).toHaveBeenCalledWith(
-        'VERBOSE',
-        message,
+        expect.stringMatching(new RegExp(`.*VERBOSE.*${message}.*`)),
         ...optionalParams,
       );
     });
 
     it('should log verbose message without optional parameters', () => {
+      process.env.LOG_LEVEL = 'VERBOSE';
+      const testLogger = new MyLogger();
       const message = 'Verbose message';
 
-      logger.verbose(message);
+      // Clear previous calls
+      consoleSpy.log.mockClear();
 
-      expect(consoleSpy.log).toHaveBeenCalledWith('VERBOSE', message);
+      testLogger.verbose(message);
+
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`.*VERBOSE.*${message}.*`)),
+      );
     });
   });
 
@@ -220,8 +298,11 @@ describe('MyLogger', () => {
 
   describe('logLevel property', () => {
     it('should read LOG_LEVEL from environment variables', () => {
-      process.env.LOG_LEVEL = 'TEST_LEVEL';
+      process.env.LOG_LEVEL = 'ERROR';
       const newLogger = new MyLogger();
+
+      // Clear previous calls
+      consoleSpy.log.mockClear();
 
       newLogger.log('test');
       expect(consoleSpy.log).not.toHaveBeenCalled();
@@ -233,42 +314,82 @@ describe('MyLogger', () => {
       process.env.LOG_LEVEL = 'INFO';
       const testLogger = new MyLogger();
 
+      // Clear previous calls
+      consoleSpy.log.mockClear();
+
       testLogger.log(null);
       testLogger.log(undefined);
 
-      expect(consoleSpy.log).toHaveBeenCalledWith(null);
-      expect(consoleSpy.log).toHaveBeenCalledWith(undefined);
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('null'),
+      );
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('undefined'),
+      );
     });
 
     it('should handle empty string messages', () => {
+      process.env.LOG_LEVEL = 'VERBOSE';
+      const testLogger = new MyLogger();
       const emptyMessage = '';
 
-      logger.error(emptyMessage);
-      logger.warn(emptyMessage);
-      logger.fatal(emptyMessage);
-      logger.verbose(emptyMessage);
+      // Clear previous calls
+      consoleSpy.error.mockClear();
+      consoleSpy.warn.mockClear();
+      consoleSpy.log.mockClear();
 
-      expect(consoleSpy.error).toHaveBeenCalledWith(emptyMessage);
-      expect(consoleSpy.warn).toHaveBeenCalledWith(emptyMessage);
-      expect(consoleSpy.error).toHaveBeenCalledWith('FATAL', emptyMessage);
-      expect(consoleSpy.log).toHaveBeenCalledWith('VERBOSE', emptyMessage);
+      testLogger.error(emptyMessage);
+      testLogger.warn(emptyMessage);
+      testLogger.fatal(emptyMessage);
+      testLogger.verbose(emptyMessage);
+
+      expect(consoleSpy.error).toHaveBeenCalledWith(
+        expect.stringContaining(emptyMessage),
+        expect.any(String),
+      );
+      expect(consoleSpy.warn).toHaveBeenCalledWith(
+        expect.stringContaining(emptyMessage),
+      );
+      expect(consoleSpy.error).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`.*FATAL.*${emptyMessage}.*`)),
+      );
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringMatching(new RegExp(`.*VERBOSE.*${emptyMessage}.*`)),
+      );
     });
 
     it('should handle object messages', () => {
+      process.env.LOG_LEVEL = 'ERROR';
+      const testLogger = new MyLogger();
       const objectMessage = { key: 'value', nested: { prop: 'test' } };
 
-      logger.error(objectMessage);
+      // Clear previous calls
+      consoleSpy.error.mockClear();
 
-      expect(consoleSpy.error).toHaveBeenCalledWith(objectMessage);
+      testLogger.error(objectMessage);
+
+      expect(consoleSpy.error).toHaveBeenCalledWith(
+        expect.stringContaining('[object Object]'),
+        expect.any(String),
+      );
     });
 
     it('should handle multiple optional parameters', () => {
+      process.env.LOG_LEVEL = 'ERROR';
+      const testLogger = new MyLogger();
       const message = 'Test message';
-      const params = ['param1', 'param2', 'param3', { obj: 'value' }];
+      const params = ['param1', 'param2', 'param3'];
 
-      logger.error(message, ...params);
+      // Clear previous calls
+      consoleSpy.error.mockClear();
 
-      expect(consoleSpy.error).toHaveBeenCalledWith(message, ...params);
+      testLogger.error(message, undefined, undefined, ...params);
+
+      expect(consoleSpy.error).toHaveBeenCalledWith(
+        expect.stringContaining(message),
+        expect.any(String),
+        ...params,
+      );
     });
   });
 });

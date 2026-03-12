@@ -58,8 +58,8 @@ describe('ErrorHandlerInterceptor', () => {
       },
       (result$, { expectedResponse }) => {
         result$.subscribe({
-          next: (response) => expect(response).toEqual(expectedResponse),
-          error: (error) => fail(`Should not have thrown error: ${error}`),
+          next: (response: any) => expect(response).toEqual(expectedResponse),
+          error: (error: any) => fail(`Should not have thrown error: ${error}`),
         });
       },
     );
@@ -85,7 +85,7 @@ describe('ErrorHandlerInterceptor', () => {
         (result$, { httpError }) => {
           result$.subscribe({
             next: () => fail('Should have thrown an error'),
-            error: (error) => {
+            error: (error: any) => {
               expect(error).toBe(httpError);
               expect(error.status).toBe(HttpStatus.NOT_FOUND);
               expect(error.message).toBe('User not found');
@@ -112,7 +112,7 @@ describe('ErrorHandlerInterceptor', () => {
         (result$, { customHttpError }) => {
           result$.subscribe({
             next: () => fail('Should have thrown an error'),
-            error: (error) => {
+            error: (error: any) => {
               expect(error).toBe(customHttpError);
               expect(error.status).toBe(422);
               expect(error.message).toBe('Custom business error');
@@ -140,7 +140,7 @@ describe('ErrorHandlerInterceptor', () => {
         (result$) => {
           result$.subscribe({
             next: () => fail('Should have thrown an error'),
-            error: (error) => {
+            error: (error: any) => {
               expect(error).toEqual({
                 ...CODES.PKL_GENERAL_ERROR,
                 message: 'An unexpected error occurred',
@@ -169,7 +169,7 @@ describe('ErrorHandlerInterceptor', () => {
         (result$) => {
           result$.subscribe({
             next: () => fail('Should have thrown an error'),
-            error: (error) => {
+            error: (error: any) => {
               expect(error).toEqual({
                 ...CODES.PKL_GENERAL_ERROR,
                 message: 'An unexpected error occurred',
@@ -183,6 +183,16 @@ describe('ErrorHandlerInterceptor', () => {
   });
 
   describe('Logging Functionality', () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+
+    beforeEach(() => {
+      process.env.NODE_ENV = 'development';
+    });
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalNodeEnv;
+    });
+
     createTestCase(
       'should log errors with complete context information',
       () => {
@@ -255,6 +265,16 @@ describe('ErrorHandlerInterceptor', () => {
   });
 
   describe('Data Sanitization', () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+
+    beforeEach(() => {
+      process.env.NODE_ENV = 'development';
+    });
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalNodeEnv;
+    });
+
     createTestCase(
       'should sanitize sensitive data in request body for logging',
       () => {
@@ -366,7 +386,7 @@ describe('ErrorHandlerInterceptor', () => {
         'should redact token field',
         () => {
           const bodyWithToken = {
-            refreshToken: 'jwt-token-here',
+            token: 'secret-jwt',
             otherData: 'safe',
           };
           return { bodyWithToken };
@@ -376,7 +396,7 @@ describe('ErrorHandlerInterceptor', () => {
         },
         (sanitized) => {
           expect(sanitized).toEqual({
-            refreshToken: 'jwt-token-here',
+            token: '[REDACTED]',
             otherData: 'safe',
           });
         },

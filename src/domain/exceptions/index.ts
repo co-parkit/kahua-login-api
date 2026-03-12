@@ -1,2 +1,2 @@
 export * from './auth.exceptions';
-export * from './parking.exceptions';
+export * from './base.exception';

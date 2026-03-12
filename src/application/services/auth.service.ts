@@ -33,10 +33,9 @@ export class AuthService implements IAuthService {
     const payload = {
       email: user.email,
       sub: user.id,
-      name: user.name,
-      lastName: user.lastName,
-      role: user.idRole,
-      status: user.idStatus,
+      user_type: user.userType,
+      role_id: user.roleId,
+      full_name: user.fullName,
     };
 
     const secret = this.configService.get<string>(JWT_SECRET_KEY);
@@ -55,7 +54,10 @@ export class AuthService implements IAuthService {
     try {
       return await this.userRepository.validateCredentials(email, password);
     } catch (error) {
-      this.logger.error('Error validating user', error.message);
+      this.logger.error(
+        'Error validating user',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
       return null;
     }
   }
@@ -64,7 +66,7 @@ export class AuthService implements IAuthService {
     return await this.userRepository.findByEmail(email);
   }
 
-  async findUserById(id: number): Promise<UserModel | null> {
+  async findUserById(id: string): Promise<UserModel | null> {
     return await this.userRepository.findById(id);
   }
 
@@ -88,7 +90,7 @@ export class AuthService implements IAuthService {
     return user;
   }
 
-  private buildResetUrl(userId: number): string {
+  private buildResetUrl(userId: string): string {
     const token = this.jwtService.sign(
       { sub: userId },
       {
@@ -115,7 +117,7 @@ export class AuthService implements IAuthService {
           to: user.email,
           templateName: EMAIL_SENT.TEMPLATE_RESET,
           variables: {
-            name: user.name,
+            name: user.fullName || user.email,
             action: EMAIL_SENT.ACTION_RESET,
             resetUrl,
           },
@@ -129,7 +131,10 @@ export class AuthService implements IAuthService {
       return new Response(CODES.KHL_NOTIFICATION_FAILED, response.data);
     } catch (error) {
       return new Response(CODES.KHL_NOTIFICATION_FAILED, {
-        error: error?.response?.data ?? CODES.KHL_NOTIFICATION_FAILED,
+        error:
+          error && typeof error === 'object' && 'response' in error
+            ? (error as { response: { data: any } }).response?.data
+            : CODES.KHL_NOTIFICATION_FAILED,
       });
     }
   }

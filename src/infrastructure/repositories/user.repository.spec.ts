@@ -17,12 +17,16 @@ describe('UserRepository', () => {
   let typeOrmRepository: jest.Mocked<Repository<User>>;
 
   beforeEach(async () => {
+    const mockManager = {
+      create: jest.fn().mockReturnValue({}),
+      save: jest.fn().mockResolvedValue(undefined),
+    };
     const mockTypeOrmRepository = {
       findOne: jest.fn(),
       create: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
-      delete: jest.fn(),
+      manager: mockManager,
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -50,10 +54,11 @@ describe('UserRepository', () => {
     it('should find user by id', async () => {
       typeOrmRepository.findOne.mockResolvedValue(mockUserEntity);
 
-      const result = await repository.findById(1);
+      const result = await repository.findById('1');
 
       expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: '1' },
+        relations: ['employeeProfile', 'customerProfile', 'role'],
       });
       expect(result).toEqual(mockCreatedUser);
     });
@@ -61,10 +66,11 @@ describe('UserRepository', () => {
     it('should return null when user not found by id', async () => {
       typeOrmRepository.findOne.mockResolvedValue(null);
 
-      const result = await repository.findById(999);
+      const result = await repository.findById('999');
 
       expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: { id: 999 },
+        where: { id: '999' },
+        relations: ['employeeProfile', 'customerProfile', 'role'],
       });
       expect(result).toBeNull();
     });
@@ -73,7 +79,7 @@ describe('UserRepository', () => {
       const error = new Error('Database connection failed');
       typeOrmRepository.findOne.mockRejectedValue(error);
 
-      await expect(repository.findById(1)).rejects.toThrow(
+      await expect(repository.findById('1')).rejects.toThrow(
         'Database connection failed',
       );
     });
@@ -87,6 +93,7 @@ describe('UserRepository', () => {
 
       expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
         where: { email: 'john.doe@test.com' },
+        relations: ['employeeProfile', 'customerProfile', 'role'],
       });
       expect(result).toEqual(mockCreatedUser);
     });
@@ -98,6 +105,7 @@ describe('UserRepository', () => {
 
       expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
         where: { email: 'nonexistent@test.com' },
+        relations: ['employeeProfile', 'customerProfile', 'role'],
       });
       expect(result).toBeNull();
     });
@@ -112,111 +120,35 @@ describe('UserRepository', () => {
     });
   });
 
-  describe('findByUserName', () => {
-    it('should find user by username', async () => {
-      typeOrmRepository.findOne.mockResolvedValue(mockUserEntity);
-
-      const result = await repository.findByUserName('johndoe');
-
-      expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: { userName: 'johndoe' },
-      });
-      expect(result).toEqual(mockCreatedUser);
-    });
-
-    it('should return null when user not found by username', async () => {
-      typeOrmRepository.findOne.mockResolvedValue(null);
-
-      const result = await repository.findByUserName('nonexistent');
-
-      expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: { userName: 'nonexistent' },
-      });
-      expect(result).toBeNull();
-    });
-
-    it('should handle database errors', async () => {
-      const error = new Error('Database connection failed');
-      typeOrmRepository.findOne.mockRejectedValue(error);
-
-      await expect(repository.findByUserName('testuser')).rejects.toThrow(
-        'Database connection failed',
-      );
-    });
-  });
-
-  describe('findByEmailOrUserName', () => {
-    it('should find user by email', async () => {
-      typeOrmRepository.findOne.mockResolvedValue(mockUserEntity);
-
-      const result = await repository.findByEmailOrUserName(
-        'john.doe@test.com',
-        'johndoe',
-      );
-
-      expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: [{ email: 'john.doe@test.com' }, { userName: 'johndoe' }],
-      });
-      expect(result).toEqual(mockCreatedUser);
-    });
-
-    it('should find user by username', async () => {
-      typeOrmRepository.findOne.mockResolvedValue(mockUserEntity);
-
-      const result = await repository.findByEmailOrUserName(
-        'different@test.com',
-        'johndoe',
-      );
-
-      expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: [{ email: 'different@test.com' }, { userName: 'johndoe' }],
-      });
-      expect(result).toEqual(mockCreatedUser);
-    });
-
-    it('should return null when user not found by email or username', async () => {
-      typeOrmRepository.findOne.mockResolvedValue(null);
-
-      const result = await repository.findByEmailOrUserName(
-        'nonexistent@test.com',
-        'nonexistent',
-      );
-
-      expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: [{ email: 'nonexistent@test.com' }, { userName: 'nonexistent' }],
-      });
-      expect(result).toBeNull();
-    });
-
-    it('should handle database errors', async () => {
-      const error = new Error('Database connection failed');
-      typeOrmRepository.findOne.mockRejectedValue(error);
-
-      await expect(
-        repository.findByEmailOrUserName('test@test.com', 'testuser'),
-      ).rejects.toThrow('Database connection failed');
-    });
-  });
-
   describe('create', () => {
     it('should create new user', async () => {
       const userData = {
-        name: 'Jane',
-        lastName: 'Smith',
         email: 'jane.smith@test.com',
-        userName: 'janesmith',
-        password: 'password123',
-        idRole: 1,
-        idStatus: 1,
+        passwordHash: 'hashedPassword123',
+        userType: 'employee' as const,
+        roleId: 1,
       };
 
-      const createdEntity = { ...mockUserEntity, ...userData };
+      const createdEntity = {
+        ...mockUserEntity,
+        email: userData.email,
+        password_hash: userData.passwordHash,
+        user_type: userData.userType,
+        role_id: userData.roleId,
+      };
       typeOrmRepository.create.mockReturnValue(createdEntity as any);
       typeOrmRepository.save.mockResolvedValue(createdEntity);
+      typeOrmRepository.findOne.mockResolvedValue(createdEntity);
 
       const result = await repository.create(userData);
 
-      expect(typeOrmRepository.create).toHaveBeenCalledWith(userData);
+      expect(typeOrmRepository.create).toHaveBeenCalledWith({
+        email: userData.email,
+        password_hash: userData.passwordHash,
+        user_type: userData.userType,
+        role_id: userData.roleId,
+        deleted_at: null,
+      });
       expect(typeOrmRepository.save).toHaveBeenCalledWith(createdEntity);
       expect(result).toEqual(UserModel.fromEntity(createdEntity));
     });
@@ -240,73 +172,145 @@ describe('UserRepository', () => {
         'Database constraint violation',
       );
     });
+
+    it('should create employee profile when userType is employee and profile data is provided', async () => {
+      const userData = {
+        email: 'emp@test.com',
+        passwordHash: 'hash',
+        userType: 'employee' as const,
+        roleId: 1,
+        fullName: 'Jane Doe',
+        department: 'IT',
+      };
+      const savedEntity = { ...mockUserEntity, id: '2', email: userData.email };
+      typeOrmRepository.create.mockReturnValue(savedEntity as any);
+      typeOrmRepository.save.mockResolvedValue(savedEntity);
+      typeOrmRepository.findOne.mockResolvedValue(savedEntity);
+
+      await repository.create(userData);
+
+      expect(typeOrmRepository.manager.create).toHaveBeenCalledWith(
+        'EmployeeProfile',
+        expect.objectContaining({
+          full_name: 'Jane Doe',
+          department: 'IT',
+        }),
+      );
+      expect(typeOrmRepository.manager.save).toHaveBeenCalled();
+    });
+
+    it('should create customer profile when userType is customer and profile data is provided', async () => {
+      const userData = {
+        email: 'cust@test.com',
+        passwordHash: 'hash',
+        userType: 'customer' as const,
+        roleId: null,
+        fullName: 'John Customer',
+        acceptedTerms: true,
+      };
+      const savedEntity = { ...mockUserEntity, id: '3', email: userData.email };
+      typeOrmRepository.create.mockReturnValue(savedEntity as any);
+      typeOrmRepository.save.mockResolvedValue(savedEntity);
+      typeOrmRepository.findOne.mockResolvedValue(savedEntity);
+
+      await repository.create(userData);
+
+      expect(typeOrmRepository.manager.create).toHaveBeenCalledWith(
+        'CustomerProfile',
+        expect.objectContaining({
+          full_name: 'John Customer',
+          accepted_terms: true,
+        }),
+      );
+      expect(typeOrmRepository.manager.save).toHaveBeenCalled();
+    });
   });
 
   describe('update', () => {
     it('should update existing user', async () => {
-      const updateData = { name: 'John Updated' };
+      const updateData = { fullName: 'John Updated' };
       const updatedEntity = { ...mockUserEntity, ...updateData };
 
       typeOrmRepository.update.mockResolvedValue({ affected: 1 } as any);
       typeOrmRepository.findOne.mockResolvedValue(updatedEntity);
 
-      const result = await repository.update(1, updateData);
+      const result = await repository.update('1', updateData);
 
-      expect(typeOrmRepository.update).toHaveBeenCalledWith(1, updateData);
+      expect(typeOrmRepository.update).toHaveBeenCalledWith('1', {
+        full_name: updateData.fullName,
+      });
       expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id: '1' },
+        relations: ['employeeProfile', 'customerProfile', 'role'],
       });
       expect(result).toEqual(UserModel.fromEntity(updatedEntity));
     });
 
     it('should handle database errors during update', async () => {
-      const updateData = { name: 'John Updated' };
+      const updateData = { fullName: 'John Updated' };
       const error = new Error('Database connection failed');
 
       typeOrmRepository.update.mockRejectedValue(error);
 
-      await expect(repository.update(1, updateData)).rejects.toThrow(
+      await expect(repository.update('1', updateData)).rejects.toThrow(
         'Database connection failed',
       );
     });
 
     it('should handle case when user is not found after update', async () => {
-      const updateData = { name: 'John Updated' };
+      const updateData = { fullName: 'John Updated' };
 
       typeOrmRepository.update.mockResolvedValue({ affected: 0 } as any);
       typeOrmRepository.findOne.mockResolvedValue(null);
 
-      // This will throw an error because UserModel.fromEntity(null) will fail
-      await expect(repository.update(999, updateData)).rejects.toThrow(
+      await expect(repository.update('999', updateData)).rejects.toThrow(
         'Cannot read properties of null',
       );
+    });
+
+    it('should update roleId when provided', async () => {
+      const updateData = { roleId: 2 };
+      const updatedEntity = { ...mockUserEntity, role_id: 2 };
+
+      typeOrmRepository.update.mockResolvedValue({ affected: 1 } as any);
+      typeOrmRepository.findOne.mockResolvedValue(updatedEntity);
+
+      await repository.update('1', updateData);
+
+      expect(typeOrmRepository.update).toHaveBeenCalledWith('1', {
+        role_id: 2,
+      });
     });
   });
 
   describe('delete', () => {
     it('should delete user successfully', async () => {
-      typeOrmRepository.delete.mockResolvedValue({ affected: 1 } as any);
+      typeOrmRepository.update.mockResolvedValue({ affected: 1 } as any);
 
-      const result = await repository.delete(1);
+      const result = await repository.delete('1');
 
-      expect(typeOrmRepository.delete).toHaveBeenCalledWith(1);
+      expect(typeOrmRepository.update).toHaveBeenCalledWith('1', {
+        deleted_at: expect.any(Date),
+      });
       expect(result).toBe(true);
     });
 
     it('should return false when no user was deleted', async () => {
-      typeOrmRepository.delete.mockResolvedValue({ affected: 0 } as any);
+      typeOrmRepository.update.mockResolvedValue({ affected: 0 } as any);
 
-      const result = await repository.delete(999);
+      const result = await repository.delete('999');
 
-      expect(typeOrmRepository.delete).toHaveBeenCalledWith(999);
+      expect(typeOrmRepository.update).toHaveBeenCalledWith('999', {
+        deleted_at: expect.any(Date),
+      });
       expect(result).toBe(false);
     });
 
     it('should handle database errors during deletion', async () => {
       const error = new Error('Database connection failed');
-      typeOrmRepository.delete.mockRejectedValue(error);
+      typeOrmRepository.update.mockRejectedValue(error);
 
-      await expect(repository.delete(1)).rejects.toThrow(
+      await expect(repository.delete('1')).rejects.toThrow(
         'Database connection failed',
       );
     });
@@ -323,11 +327,12 @@ describe('UserRepository', () => {
       const result = await repository.validateCredentials(email, password);
 
       expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: { email },
+        where: { email, deleted_at: null as any },
+        relations: ['employeeProfile', 'customerProfile', 'role'],
       });
       expect(mockedBcrypt.compare).toHaveBeenCalledWith(
         password,
-        mockUserEntity.password,
+        mockUserEntity.password_hash,
       );
       expect(result).toEqual(mockCreatedUser);
     });
@@ -341,7 +346,8 @@ describe('UserRepository', () => {
       const result = await repository.validateCredentials(email, password);
 
       expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: { email },
+        where: { email, deleted_at: null as any },
+        relations: ['employeeProfile', 'customerProfile', 'role'],
       });
       expect(mockedBcrypt.compare).not.toHaveBeenCalled();
       expect(result).toBeNull();
@@ -357,11 +363,12 @@ describe('UserRepository', () => {
       const result = await repository.validateCredentials(email, password);
 
       expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: { email },
+        where: { email, deleted_at: null as any },
+        relations: ['employeeProfile', 'customerProfile', 'role'],
       });
       expect(mockedBcrypt.compare).toHaveBeenCalledWith(
         password,
-        mockUserEntity.password,
+        mockUserEntity.password_hash,
       );
       expect(result).toBeNull();
     });
@@ -396,17 +403,15 @@ describe('UserRepository', () => {
     it('should convert entity to UserModel correctly', async () => {
       typeOrmRepository.findOne.mockResolvedValue(mockUserEntity);
 
-      const result = await repository.findById(1);
+      const result = await repository.findById('1');
 
       expect(result).toBeInstanceOf(UserModel);
       expect(result?.id).toBe(mockUserEntity.id);
-      expect(result?.name).toBe(mockUserEntity.name);
-      expect(result?.lastName).toBe(mockUserEntity.lastName);
+      expect(result?.fullName).toBeUndefined();
       expect(result?.email).toBe(mockUserEntity.email);
-      expect(result?.phone).toBe(mockUserEntity.phone);
-      expect(result?.userName).toBe(mockUserEntity.userName);
-      expect(result?.idRole).toBe(mockUserEntity.idRole);
-      expect(result?.idStatus).toBe(mockUserEntity.idStatus);
+      expect(result?.email).toBe(mockUserEntity.email);
+      expect(result?.userType).toBe(mockUserEntity.user_type);
+      expect(result?.roleId).toBe(mockUserEntity.role_id);
     });
   });
 
@@ -424,17 +429,6 @@ describe('UserRepository', () => {
 
       const result = await repository.findByEmail(undefined as any);
 
-      expect(result).toBeNull();
-    });
-
-    it('should handle empty string values', async () => {
-      typeOrmRepository.findOne.mockResolvedValue(null);
-
-      const result = await repository.findByUserName('');
-
-      expect(typeOrmRepository.findOne).toHaveBeenCalledWith({
-        where: { userName: '' },
-      });
       expect(result).toBeNull();
     });
   });

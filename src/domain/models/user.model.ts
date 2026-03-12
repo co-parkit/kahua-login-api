@@ -1,42 +1,56 @@
 /**
- * Modelo de dominio para Usuario
- * Representa la lógica de negocio pura, sin dependencias de infraestructura
+ * Model of domain for User
+ * Represents the pure business logic, without infrastructure dependencies
  */
 export class UserModel {
   constructor(
-    public readonly id: number,
-    public readonly name: string,
-    public readonly lastName: string,
+    public readonly id: string,
     public readonly email: string,
-    public readonly phone: string | null,
-    public readonly userName: string,
-    public readonly idRole: number,
-    public readonly idStatus: number,
+    public readonly passwordHash: string,
+    public readonly userType: 'employee' | 'customer',
+    public readonly roleId: number | null,
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date,
+    public readonly deletedAt: Date | null,
+    public readonly fullName?: string,
+    public readonly phone?: string,
+    public readonly profilePicture?: string,
   ) {}
 
-  /**
-   * Valida si el usuario está activo
-   */
   isActive(): boolean {
-    return this.idStatus === 1;
+    return this.deletedAt === null;
   }
 
   /**
-   * Valida si el usuario tiene un rol específico
+   * Valid if the user has a specific role
    */
   hasRole(roleId: number): boolean {
-    return this.idRole === roleId;
+    return this.roleId === roleId;
   }
 
   /**
-   * Obtiene el nombre completo del usuario
+   * Valid if the user is an employee
+   */
+  isEmployee(): boolean {
+    return this.userType === 'employee';
+  }
+
+  /**
+   * Valid if the user is a customer
+   */
+  isCustomer(): boolean {
+    return this.userType === 'customer';
+  }
+
+  /**
+   * Get the full name of the user
    */
   getFullName(): string {
-    return `${this.name} ${this.lastName}`;
+    return this.fullName || '';
   }
 
   /**
-   * Valida si el email es válido
+   * Valid if the email is valid
    */
   isValidEmail(): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -44,34 +58,47 @@ export class UserModel {
   }
 
   /**
-   * Crea una instancia desde una entidad de base de datos
+   * Create an instance from a database entity
    */
   static fromEntity(entity: any): UserModel {
+    const fullName =
+      entity.employeeProfile?.full_name || entity.customerProfile?.full_name;
+    const phone =
+      entity.employeeProfile?.phone || entity.customerProfile?.phone;
+    const profilePicture =
+      entity.employeeProfile?.profile_picture ||
+      entity.customerProfile?.profile_picture;
+
     return new UserModel(
       entity.id,
-      entity.name,
-      entity.lastName,
       entity.email,
-      entity.phone,
-      entity.userName,
-      entity.idRole,
-      entity.idStatus,
+      entity.password_hash,
+      entity.user_type,
+      entity.role_id,
+      entity.created_at,
+      entity.updated_at,
+      entity.deleted_at,
+      fullName,
+      phone,
+      profilePicture,
     );
   }
 
   /**
-   * Convierte el modelo a un objeto plano
+   * Convert the model to a plain object
    */
   toPlainObject(): any {
     return {
       id: this.id,
-      name: this.name,
-      lastName: this.lastName,
       email: this.email,
+      userType: this.userType,
+      roleId: this.roleId,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      deletedAt: this.deletedAt,
+      fullName: this.fullName,
       phone: this.phone,
-      userName: this.userName,
-      idRole: this.idRole,
-      idStatus: this.idStatus,
+      profilePicture: this.profilePicture,
     };
   }
 }

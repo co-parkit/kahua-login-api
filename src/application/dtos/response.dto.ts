@@ -2,109 +2,57 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UserResponseDto {
   @ApiProperty({ description: 'ID único del usuario' })
-  id: number;
-
-  @ApiProperty({ description: 'Nombre del usuario' })
-  name: string;
-
-  @ApiProperty({ description: 'Apellido del usuario' })
-  lastName: string;
+  readonly id!: string;
 
   @ApiProperty({ description: 'Email del usuario' })
-  email: string;
+  readonly email!: string;
+
+  @ApiProperty({
+    description: 'Tipo de usuario',
+    enum: ['employee', 'customer'],
+  })
+  readonly user_type!: 'employee' | 'customer';
+
+  @ApiProperty({ description: 'ID del rol del usuario', required: false })
+  readonly role_id?: number | null;
+
+  @ApiProperty({ description: 'Fecha de creación' })
+  readonly created_at!: Date;
+
+  @ApiProperty({ description: 'Fecha de actualización' })
+  readonly updated_at!: Date;
+
+  @ApiProperty({ description: 'Fecha de eliminación', required: false })
+  readonly deleted_at?: Date | null;
+
+  @ApiProperty({ description: 'Nombre completo del usuario', required: false })
+  readonly full_name?: string;
 
   @ApiProperty({ description: 'Teléfono del usuario', required: false })
-  phone?: string | null;
+  readonly phone?: string;
 
-  @ApiProperty({ description: 'Nombre de usuario' })
-  userName: string;
-
-  @ApiProperty({ description: 'ID del rol del usuario' })
-  idRole: number;
-
-  @ApiProperty({ description: 'ID del estado del usuario' })
-  idStatus: number;
+  @ApiProperty({ description: 'Foto de perfil del usuario', required: false })
+  readonly profile_picture?: string;
 }
 
 export class AuthResponseDto {
   @ApiProperty({ description: 'Token de acceso JWT' })
-  access_token: string;
+  readonly access_token!: string;
 
   @ApiProperty({
     description: 'Información del usuario autenticado',
     type: UserResponseDto,
   })
-  user: UserResponseDto;
+  readonly user!: UserResponseDto;
 }
 
 export class UserCreateResponseDto {
   @ApiProperty({ description: 'ID del usuario creado' })
-  userId: number;
+  readonly userId!: string;
 
   @ApiProperty({
     description: 'Información del usuario creado',
     type: UserResponseDto,
   })
-  user: UserResponseDto;
-}
-
-export class PreEnrolledParkingResponseDto {
-  @ApiProperty({ description: 'ID único del parqueadero' })
-  id: number;
-
-  @ApiProperty({ description: 'Representante legal' })
-  legalRepresentative: string;
-
-  @ApiProperty({ description: 'Nombre de la empresa' })
-  companyName: string;
-
-  @ApiProperty({ description: 'ID externo único' })
-  externalId: string;
-
-  @ApiProperty({ description: 'ID interno', required: false })
-  internalId: string | null;
-
-  @ApiProperty({ description: 'Email de contacto' })
-  email: string;
-
-  @ApiProperty({ description: 'Teléfono de contacto' })
-  phone: string;
-
-  @ApiProperty({ description: 'Dirección' })
-  address: string;
-
-  @ApiProperty({ description: 'ID de la ciudad' })
-  city: number;
-
-  @ApiProperty({ description: 'Barrio' })
-  neighborhood: string;
-
-  @ApiProperty({ description: 'Tiene sucursales' })
-  hasBranches: boolean;
-
-  @ApiProperty({ description: 'Número de sucursales' })
-  numberOfBranches: number;
-
-  @ApiProperty({ description: 'Tipo de documento' })
-  documentType: string;
-
-  @ApiProperty({ description: 'Número de documento' })
-  documentNumber: string;
-
-  @ApiProperty({ description: 'Estado de la pre-inscripción' })
-  isStatus: number;
-}
-
-export class PreEnrolledParkingCreateResponseDto {
-  @ApiProperty({ description: 'Representante legal' })
-  legalRepresentative: string;
-
-  @ApiProperty({ description: 'Nombre de la empresa' })
-  companyName: string;
-
-  @ApiProperty({ description: 'ID externo único' })
-  externalId: string;
-
-  @ApiProperty({ description: 'ID interno', required: false })
-  internalId: string | null;
+  readonly user!: UserResponseDto;
 }

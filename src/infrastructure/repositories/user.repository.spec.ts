@@ -17,11 +17,16 @@ describe('UserRepository', () => {
   let typeOrmRepository: jest.Mocked<Repository<User>>;
 
   beforeEach(async () => {
+    const mockManager = {
+      create: jest.fn().mockReturnValue({}),
+      save: jest.fn().mockResolvedValue(undefined),
+    };
     const mockTypeOrmRepository = {
       findOne: jest.fn(),
       create: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
+      manager: mockManager,
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -167,6 +172,58 @@ describe('UserRepository', () => {
         'Database constraint violation',
       );
     });
+
+    it('should create employee profile when userType is employee and profile data is provided', async () => {
+      const userData = {
+        email: 'emp@test.com',
+        passwordHash: 'hash',
+        userType: 'employee' as const,
+        roleId: 1,
+        fullName: 'Jane Doe',
+        department: 'IT',
+      };
+      const savedEntity = { ...mockUserEntity, id: '2', email: userData.email };
+      typeOrmRepository.create.mockReturnValue(savedEntity as any);
+      typeOrmRepository.save.mockResolvedValue(savedEntity);
+      typeOrmRepository.findOne.mockResolvedValue(savedEntity);
+
+      await repository.create(userData);
+
+      expect(typeOrmRepository.manager.create).toHaveBeenCalledWith(
+        'EmployeeProfile',
+        expect.objectContaining({
+          full_name: 'Jane Doe',
+          department: 'IT',
+        }),
+      );
+      expect(typeOrmRepository.manager.save).toHaveBeenCalled();
+    });
+
+    it('should create customer profile when userType is customer and profile data is provided', async () => {
+      const userData = {
+        email: 'cust@test.com',
+        passwordHash: 'hash',
+        userType: 'customer' as const,
+        roleId: null,
+        fullName: 'John Customer',
+        acceptedTerms: true,
+      };
+      const savedEntity = { ...mockUserEntity, id: '3', email: userData.email };
+      typeOrmRepository.create.mockReturnValue(savedEntity as any);
+      typeOrmRepository.save.mockResolvedValue(savedEntity);
+      typeOrmRepository.findOne.mockResolvedValue(savedEntity);
+
+      await repository.create(userData);
+
+      expect(typeOrmRepository.manager.create).toHaveBeenCalledWith(
+        'CustomerProfile',
+        expect.objectContaining({
+          full_name: 'John Customer',
+          accepted_terms: true,
+        }),
+      );
+      expect(typeOrmRepository.manager.save).toHaveBeenCalled();
+    });
   });
 
   describe('update', () => {
@@ -209,6 +266,20 @@ describe('UserRepository', () => {
       await expect(repository.update('999', updateData)).rejects.toThrow(
         'Cannot read properties of null',
       );
+    });
+
+    it('should update roleId when provided', async () => {
+      const updateData = { roleId: 2 };
+      const updatedEntity = { ...mockUserEntity, role_id: 2 };
+
+      typeOrmRepository.update.mockResolvedValue({ affected: 1 } as any);
+      typeOrmRepository.findOne.mockResolvedValue(updatedEntity);
+
+      await repository.update('1', updateData);
+
+      expect(typeOrmRepository.update).toHaveBeenCalledWith('1', {
+        role_id: 2,
+      });
     });
   });
 

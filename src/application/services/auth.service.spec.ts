@@ -177,6 +177,18 @@ describe('AuthService', () => {
         'Database connection failed',
       );
     });
+
+    it('should log "Unknown error" when thrown value is not an Error instance', async () => {
+      userRepository.validateCredentials.mockRejectedValue('string error');
+
+      const result = await service.validateUser('test@test.com', 'pass');
+
+      expect(result).toBeNull();
+      expect(logger.error).toHaveBeenCalledWith(
+        'Error validating user',
+        'Unknown error',
+      );
+    });
   });
 
   describe('findByEmail', () => {
@@ -293,6 +305,26 @@ describe('AuthService', () => {
         new Response(CODES.KHL_NOTIFICATION_FAILED, {
           error: 'Email service unavailable',
         }),
+      );
+    });
+
+    it('should return KHL_NOTIFICATION_FAILED with response.data when status is not 201', async () => {
+      userRepository.findByEmail.mockResolvedValue(mockUser);
+      mockUser.hasRole.mockReturnValue(true);
+      httpService.post.mockReturnValue(
+        of({
+          status: 200,
+          data: { message: 'Queued' },
+          statusText: 'OK',
+          headers: {} as any,
+          config: {} as any,
+        } as AxiosResponse),
+      );
+
+      const result = await service.forgotPassword('test@test.com');
+
+      expect(result).toEqual(
+        new Response(CODES.KHL_NOTIFICATION_FAILED, { message: 'Queued' }),
       );
     });
 

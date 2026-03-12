@@ -376,7 +376,7 @@ describe('ErrorHandlerInterceptor', () => {
         'should redact token field',
         () => {
           const bodyWithToken = {
-            refreshToken: 'jwt-token-here',
+            token: 'secret-jwt',
             otherData: 'safe',
           };
           return { bodyWithToken };
@@ -386,7 +386,7 @@ describe('ErrorHandlerInterceptor', () => {
         },
         (sanitized) => {
           expect(sanitized).toEqual({
-            refreshToken: 'jwt-token-here',
+            token: '[REDACTED]',
             otherData: 'safe',
           });
         },

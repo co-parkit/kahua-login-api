@@ -8,6 +8,7 @@ import {
   mockExistingUserWithSameEmail,
 } from '../../../test/mocks/user/user.mock';
 import { mockCreateUserDto } from '../../../test/mocks/user/register-dto.mock';
+import { RegisterDto } from '../dtos/register.dto';
 import {
   createMockUserRepository,
   MockUserRepository,
@@ -207,6 +208,67 @@ describe('RegisterUseCase', () => {
             userType: mockCreateUserDto.user_type,
             roleId: mockCreateUserDto.role_id,
           }),
+        );
+      });
+    });
+
+    describe('fullName and roleId branches', () => {
+      it('should use full_name when provided', async () => {
+        setupSuccessfulRegistration();
+        const dto: RegisterDto = {
+          ...mockCreateUserDto,
+          full_name: 'Full Name Only',
+        };
+
+        await useCase.execute(dto);
+
+        expect(userRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({ fullName: 'Full Name Only' }),
+        );
+      });
+
+      it('should build fullName from name and last_name when full_name not set', async () => {
+        setupSuccessfulRegistration();
+        const dto: RegisterDto = {
+          ...mockCreateUserDto,
+          name: 'Jane',
+          last_name: 'Smith',
+        };
+
+        await useCase.execute(dto);
+
+        expect(userRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({ fullName: 'Jane Smith' }),
+        );
+      });
+
+      it('should use id_role when role_id is not set', async () => {
+        setupSuccessfulRegistration();
+        const dto: RegisterDto = {
+          ...mockCreateUserDto,
+          role_id: undefined,
+          id_role: 2,
+        };
+
+        await useCase.execute(dto);
+
+        expect(userRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({ roleId: 2 }),
+        );
+      });
+
+      it('should pass acceptedTerms for customer user type', async () => {
+        setupSuccessfulRegistration();
+        const dto: RegisterDto = {
+          ...mockCreateUserDto,
+          user_type: 'customer',
+          accepted_terms: true,
+        };
+
+        await useCase.execute(dto);
+
+        expect(userRepository.create).toHaveBeenCalledWith(
+          expect.objectContaining({ acceptedTerms: true }),
         );
       });
     });

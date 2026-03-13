@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsNumber,
   MinLength,
-  IsEnum,
+  IsIn,
 } from 'class-validator';
 import { PartialType, ApiProperty } from '@nestjs/swagger';
 
@@ -21,7 +21,9 @@ export class CreateUserDto {
   @ApiProperty({ description: `user's password` })
   readonly password!: string;
 
-  @IsEnum(['employee', 'customer'])
+  @IsIn(['employee', 'customer'], {
+    message: 'user_type must be one of the following values: employee, customer',
+  })
   @IsNotEmpty()
   @ApiProperty({ description: `user's type`, enum: ['employee', 'customer'] })
   readonly user_type!: 'employee' | 'customer';
@@ -44,7 +46,9 @@ export class RegisterDto {
   @ApiProperty({ description: `user's password` })
   readonly password!: string;
 
-  @IsEnum(['employee', 'customer'])
+  @IsIn(['employee', 'customer'], {
+    message: 'user_type must be one of the following values: employee, customer',
+  })
   @IsNotEmpty()
   @ApiProperty({ description: `user's type`, enum: ['employee', 'customer'] })
   readonly user_type!: 'employee' | 'customer';

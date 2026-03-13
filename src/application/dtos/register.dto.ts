@@ -22,7 +22,8 @@ export class CreateUserDto {
   readonly password!: string;
 
   @IsIn(['employee', 'customer'], {
-    message: 'user_type must be one of the following values: employee, customer',
+    message:
+      'user_type must be one of the following values: employee, customer',
   })
   @IsNotEmpty()
   @ApiProperty({ description: `user's type`, enum: ['employee', 'customer'] })
@@ -47,7 +48,8 @@ export class RegisterDto {
   readonly password!: string;
 
   @IsIn(['employee', 'customer'], {
-    message: 'user_type must be one of the following values: employee, customer',
+    message:
+      'user_type must be one of the following values: employee, customer',
   })
   @IsNotEmpty()
   @ApiProperty({ description: `user's type`, enum: ['employee', 'customer'] })
